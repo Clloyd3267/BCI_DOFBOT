@@ -4,7 +4,7 @@ import socket
 
 # take the server name and port name
 
-host = '127.0.0.1'
+host = '128.153.176.213' # CDL=> IP of host server
 port = 5000
 
 # create a socket at client side
@@ -14,7 +14,7 @@ s = socket.socket(socket.AF_INET,
 
 # connect it to server and port
 # number on local computer.
-s.connect(('127.0.0.1', port))
+s.connect((host, port))
 
 # receive message string from
 # server, at a time 1024 B
