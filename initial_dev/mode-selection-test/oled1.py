@@ -7,6 +7,8 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
+from modeDisplay import modeType
+
 import subprocess
 
 #pin configuration,on the OLED this pin isnt used
@@ -51,3 +53,19 @@ def main():
         draw.rectangle((0,0,width,height), outline=0, fill=0)
 
 
+        draw.text()
+        draw.text()
+        draw.text()
+        draw.text()
+
+        # Diaplay image.
+        disp.image(image)
+        disp.display()
+        # time.sleep(.5)
+
+if __name__ == "__main__":
+    try :
+        main()
+    except KeyboardInterrupt:
+        print(" Program closed! ")
+        pass
