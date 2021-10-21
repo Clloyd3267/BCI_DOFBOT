@@ -47,25 +47,25 @@ x = 0
 # Load default font.
 font = ImageFont.load_default()
 
-# def main():
-#     while True:
-#         # Draw a black filled box to clear the image.
-#         draw.rectangle((0,0,width,height), outline=0, fill=0)
-#
-#
-#         draw.text()
-#         draw.text()
-#         draw.text()
-#         draw.text()
-#
-#         # Diaplay image.
-#         disp.image(image)
-#         disp.display()
-#         # time.sleep(.5)
-#
-# if __name__ == "__main__":
-#     try :
-#         main()
-#     except KeyboardInterrupt:
-#         print(" Program closed! ")
-#         pass
+def main():
+     while True:
+         # Draw a black filled box to clear the image.
+         draw.rectangle((0,0,width,height), outline=0, fill=0)
+
+
+         draw.text()
+         draw.text()
+         draw.text()
+         draw.text()
+
+         # Diaplay image.
+         disp.image(image)
+         disp.display()
+         # time.sleep(.5)
+
+ if __name__ == "__main__":
+     try :
+         main()
+     except KeyboardInterrupt:
+         print(" Program closed! ")
+         pass
