@@ -1,0 +1,3 @@
+[submodule "initial_dev/initial_dev/smart-socket-library-test/SmartSockets"]
+	path = initial_dev/initial_dev/smart-socket-library-test/SmartSockets
+	url = git@github.com:Clloyd3267/SmartSockets.git

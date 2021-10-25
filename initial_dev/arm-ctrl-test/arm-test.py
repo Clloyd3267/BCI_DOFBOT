@@ -42,7 +42,7 @@ def get_command():
         elif(servo == 5):
             angle_5= angle
         elif(servo == 6):
-            angle_6= angle 
+            angle_6= angle
         Arm.Arm_serial_servo_write(servo, angle, 500)
     elif(command == "rgb"):
         red = int(input("choose a red value: "))
@@ -75,8 +75,8 @@ def get_command():
     elif(command == "reach_forward"):
         angle_2= 90
         angle_3= 25
-        angle_4= 65 
-        Arm.Arm_serial_servo_write6(angle_1, angle_2, 25, 65, angle_5, angle_6, 1000) 
+        angle_4= 65
+        Arm.Arm_serial_servo_write6(angle_1, angle_2, 25, 65, angle_5, angle_6, 1000)
     elif(command == "reach_down"):
         angle_2= 45
         angle_3= 25
