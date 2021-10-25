@@ -11,7 +11,7 @@ class modeType (enum.Enum):     #creating enumerations with class
 
 
 class BciCtr ():
-    currentMode = modeType.Initializing                                 #set default mode to Initialization
+    currentMode = modeType.Initializing                               #set default mode to Initialization
     def main(self):
         while(True):
             if self.currentMode == modeType.Initializing:
@@ -19,7 +19,7 @@ class BciCtr ():
                 self.currentMode = modeType.Profile_Select
             elif self.currentMode == modeType.Profile_Select:
                 print(modeType.Profile_Select.name)
-                if keyboard.is_pressed('t'):            # trained
+                if keyboard.is_pressed('t'):            #trained
                     self.currentMode = modeType.Live_Mode
                 if keyboard.is_pressed('u'):            #untrained
                     self.currentMode = modeType.Training_Mode
