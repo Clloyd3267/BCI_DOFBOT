@@ -1,7 +1,7 @@
 import enum
 import keyboard
 
-from oledDriver import Draw
+from oledDriver import *
 
 
 class modeType (enum.Enum):     # creating enumerations with class
@@ -13,7 +13,7 @@ class modeType (enum.Enum):     # creating enumerations with class
     # Game_Mode = 6
 
 
-#oledDriver = Draw()
+oledDriver = Draw()
 
 #Draw.printToOled()
     
@@ -24,11 +24,12 @@ class modeType (enum.Enum):     # creating enumerations with class
 def main():
     previousMode = None
     currentMode = modeType.Initializing      # set default mode to Initialization
+    #oledDriver = Draw()
     while True:
 
         if currentMode == modeType.Initializing:
             # print(modeType.Initializing.name)      # print name of enumeration
-            #oledDriver.printToOled(modeType.Initialization.name)
+            oledDriver.printToOled(modeType.Initialization.name)
             currentMode = modeType.Profile_Select
         elif currentMode == modeType.Profile_Select:
             # print(modeType.Profile_Select.name)
