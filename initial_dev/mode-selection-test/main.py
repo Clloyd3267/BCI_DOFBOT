@@ -13,7 +13,7 @@ class modeType (enum.Enum):     # creating enumerations with class
     # Game_Mode = 6
 
 
-oledDriver = Draw()
+#oledDriver = Draw()
 
 #Draw.printToOled()
     
@@ -24,7 +24,7 @@ oledDriver = Draw()
 def main():
     previousMode = None
     currentMode = modeType.Initializing      # set default mode to Initialization
-    #oledDriver = Draw()
+    oledDriver = Draw()
     while True:
 
         if currentMode == modeType.Initializing:
