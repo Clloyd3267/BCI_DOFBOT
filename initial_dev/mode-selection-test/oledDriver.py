@@ -48,17 +48,17 @@ class Draw:
 
     def printToOled(self, modeName):
 
-        # while True:
-        # Draw a black filled box to clear the image.
-        self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
+        while True:
+            # Draw a black filled box to clear the image.
+            self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
 
-        self.draw.text((self.x, self.top), modeName, font=self.font, fill=255)
-        # draw.text()
-        # draw.text()
-        # draw.text()
+            self.draw.text((self.x, self.top), modeName, font=self.font, fill=255)
+            # draw.text()
+            # draw.text()
+            # draw.text()
 
-        # Display image.
-        self.disp.image(self.image)
-        self.disp.display()
-        # time.sleep(.5)
+            # Display image.
+            self.disp.image(self.image)
+            self.disp.display()
+            # time.sleep(.5)
 
