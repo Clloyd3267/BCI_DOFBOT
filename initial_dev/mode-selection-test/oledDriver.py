@@ -48,7 +48,7 @@ class Draw:
 
     def printToOled(self, modeName):
 
-        while True:
+        #while True:
             # Draw a black filled box to clear the image.
             self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
 
