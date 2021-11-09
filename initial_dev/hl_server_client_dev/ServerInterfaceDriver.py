@@ -64,7 +64,7 @@ class ServerInterfaceDriver:
 		genericMessage.ParseFromString(messageByteString)
 
 		# Unpack the generic message as a specific message
-		if (genericMessage.Is(ListProfileRequest.DESCRIPTOR)):           # ListProfileRequest
+		if genericMessage.Is(ListProfileRequest.DESCRIPTOR):           # ListProfileRequest
 			# Unpack specific message
 			message = ListProfileRequest()
 			self.unpackRequestMessage(message, genericMessage)
@@ -81,7 +81,7 @@ class ServerInterfaceDriver:
 
 			self.sendMessage(responseMessage)
 
-		elif (genericMessage.Is(CreateProfileRequest.DESCRIPTOR)):       # CreateProfileRequest
+		elif genericMessage.Is(CreateProfileRequest.DESCRIPTOR):       # CreateProfileRequest
 			# Unpack specific message
 			message = CreateProfileRequest()
 			self.unpackRequestMessage(message, genericMessage)
@@ -95,7 +95,7 @@ class ServerInterfaceDriver:
 
 			self.sendMessage(responseMessage)
 
-		elif (genericMessage.Is(RenameProfileRequest.DESCRIPTOR)):       # RenameProfileRequest
+		elif genericMessage.Is(RenameProfileRequest.DESCRIPTOR):       # RenameProfileRequest
 			# Unpack specific message
 			message = RenameProfileRequest()
 			self.unpackRequestMessage(message, genericMessage)
@@ -109,7 +109,7 @@ class ServerInterfaceDriver:
 
 			self.sendMessage(responseMessage)
 
-		elif (genericMessage.Is(DeleteProfileRequest.DESCRIPTOR)):       # DeleteProfileRequest
+		elif genericMessage.Is(DeleteProfileRequest.DESCRIPTOR):       # DeleteProfileRequest
 			# Unpack specific message
 			message = DeleteProfileRequest()
 			self.unpackRequestMessage(message, genericMessage)
@@ -123,7 +123,7 @@ class ServerInterfaceDriver:
 
 			self.sendMessage(responseMessage)
 
-		elif (genericMessage.Is(SelectProfileRequest.DESCRIPTOR)):       # SelectProfileRequest
+		elif genericMessage.Is(SelectProfileRequest.DESCRIPTOR):       # SelectProfileRequest
 			# Unpack specific message
 			message = SelectProfileRequest()
 			self.unpackRequestMessage(message, genericMessage)
@@ -137,7 +137,7 @@ class ServerInterfaceDriver:
 
 			self.sendMessage(responseMessage)
 
-		elif (genericMessage.Is(DeselectProfileRequest.DESCRIPTOR)):     # DeselectProfileRequest
+		elif genericMessage.Is(DeselectProfileRequest.DESCRIPTOR):     # DeselectProfileRequest
 			# Unpack specific message
 			message = DeselectProfileRequest()
 			self.unpackRequestMessage(message, genericMessage)
@@ -151,28 +151,40 @@ class ServerInterfaceDriver:
 
 			self.sendMessage(responseMessage)
 
-		elif (genericMessage.Is(GetSelectedProfileRequest.DESCRIPTOR)):  # GetSelectedProfileRequest
+		elif genericMessage.Is(GetSelectedProfileRequest.DESCRIPTOR):  # GetSelectedProfileRequest
 			# Unpack specific message
 			message = GetSelectedProfileRequest()
 			self.unpackRequestMessage(message, genericMessage)
 
 			# Handle request command
-			status, statusMessage = self.headsetAPIWrapper.getSelectedProfile()
+			status, statusMessage, selectedProfile = self.headsetAPIWrapper.getSelectedProfile()
 
 			# Package and send response message
 			responseMessage = GetSelectedProfileResponse()
 			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, status, statusMessage)
+
+			# Add selected profile to response
+			responseMessage.profileName = selectedProfile
 
 			self.sendMessage(responseMessage)
 
 		else:
 			print("Die potato")
 
+if __name__ == "__main__":
+	# Connection information
+	server_ip = "128.153.176.67"
+	server_port = 42070
 
-server_ip = "128.153.176.67"
-server_port = 42070
-server = ServerInterfaceDriver(server_ip, server_port)
+	# Create a server socket
+	server = ServerInterfaceDriver(server_ip, server_port)
 
-message = server.waitForMessage()
+	try:
+		while (True):
+			message = server.waitForMessage()
+			server.handleMessage(message)
 
-server.handleMessage(message)
+	except KeyboardInterrupt:
+		print("Keyboard interrupt issued. Server is shutting down!")
+		server.serverSmartSocket.closeSocket()
+

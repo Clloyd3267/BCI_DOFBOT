@@ -10,7 +10,7 @@ from bci_dofbot_interface_pb2 import *
 
 class HeadsetAPIWrapper:
 	def __init__(self):
-		self.profileList = []
+		self.profileList = ["Yo mamma", "Tony Colander", "Rob Boss"]
 		self.selectedProfile = ""
 
 	def listProfiles(self):
@@ -56,6 +56,6 @@ class HeadsetAPIWrapper:
 
 	def getSelectedProfile(self):
 		if not self.selectedProfile:
-			return Status.FAILURE, "No profile selected!"
+			return Status.FAILURE, "No profile selected!", ""
 		else:
-			return Status.SUCCESS, "Profile {} is currently selected!".format(self.selectedProfile)
+			return Status.SUCCESS, "Profile {} is currently selected!".format(self.selectedProfile), self.selectedProfile
