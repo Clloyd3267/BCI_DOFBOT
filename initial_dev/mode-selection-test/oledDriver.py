@@ -4,7 +4,6 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
-# from modeDisplay import BciCtr
 
 # import subprocess
 
@@ -47,13 +46,13 @@ class Draw:
         # Load default font.
         self.font = ImageFont.load_default()
 
-    def printToOled(self):
+    def printToOled(self, modeName):
 
         # while True:
         # Draw a black filled box to clear the image.
         self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
 
-        # self.draw.text((self.x, self.top), str, font=self.font, fill=255)
+        self.draw.text((self.x, self.top), modeName, font=self.font, fill=255)
         # draw.text()
         # draw.text()
         # draw.text()
