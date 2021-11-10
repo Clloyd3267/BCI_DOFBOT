@@ -10,18 +10,32 @@
 # Imports
 from bci_dofbot_interface_pb2 import *
 from google.protobuf.any_pb2  import *
+from google.protobuf.message import DecodeError
 from SmartSockets.SmartSocket import *
 from HeadsetAPIWrapper import *
 import itertools
 
 class ServerInterfaceDriver:
+	"""
+	High level driver for a SmartSocket server sending/receiving
+	headset data from an Emotiv X headset. Uses Google Protocol
+	Buffers Version 3 to describe a message schema.
+
+	Attributes:
+		socket_type (SocketType) : Whether this socket is a client or server.
+		server_ip   (str)        : The IP address of the server.
+		server_port (str)        : The Port of the server.
+		debug       (bool)       : Whether debug prints should be enabled.
+    """
 	def __init__(self, server_ip, server_port):
 
 		# Initialize server socket
 		self.serverSmartSocket = SmartSocket(server_ip, server_port, SocketType.SERVER)
 
+		# The current response id
 		self.currentResponseID = itertools.count(start=1)
 
+		# Wrapper class for headset functions
 		self.headsetAPIWrapper = HeadsetAPIWrapper()
 
 	def unpackRequestMessage(self, requestMessage, genericMessage):
@@ -61,7 +75,11 @@ class ServerInterfaceDriver:
 		genericMessage = Any()
 
 		# Fill generic message with incoming packet
-		genericMessage.ParseFromString(messageByteString)
+		try:
+			genericMessage.ParseFromString(messageByteString)
+		except DecodeError:
+			print("Error: Could not parse message. Invalid data!")
+			return None
 
 		# Unpack the generic message as a specific message
 		if genericMessage.Is(ListProfileRequest.DESCRIPTOR):           # ListProfileRequest
@@ -169,7 +187,8 @@ class ServerInterfaceDriver:
 			self.sendMessage(responseMessage)
 
 		else:
-			print("Die potato")
+			print("Unknown Message Type: {}!".format(genericMessage.TypeName()))
+
 
 if __name__ == "__main__":
 	# Connection information
@@ -179,12 +198,11 @@ if __name__ == "__main__":
 	# Create a server socket
 	server = ServerInterfaceDriver(server_ip, server_port)
 
+	# Main server loop
 	try:
-		while (True):
+		while True:
 			message = server.waitForMessage()
 			server.handleMessage(message)
-
-	except KeyboardInterrupt:
+	except:
 		print("Keyboard interrupt issued. Server is shutting down!")
-		server.serverSmartSocket.closeSocket()
 

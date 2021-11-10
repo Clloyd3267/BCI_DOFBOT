@@ -220,20 +220,21 @@ if __name__ == "__main__":
 
 	# Create a server socket
 	server = ClientInterfaceDriver(server_ip, server_port)
-	print(server.listProfiles())
-	server.createProfile("Cat 1 Crit rider Josiah (only on CU campus crit)")
-	server.createProfile("Bob")
-	print(server.listProfiles())
-	server.renameProfile("Bob", "Not Bob ;)")
-	print(server.listProfiles())
 
-	print("Selected profile: ", server.getSelectedProfile())
-	server.selectProfile("Cat 1 Crit rider Josiah (only on CU campus crit)")
-	print("Selected profile: ", server.getSelectedProfile())
-	server.deselectProfile()
-	print("Selected profile: ", server.getSelectedProfile())
-
-	server.deleteProfile("Cat 1 Crit rider Josiah (only on CU campus crit)")
 	print(server.listProfiles())
+	# server.createProfile("Cat 1 Crit rider Josiah (only on CU campus crit)")
+	# server.createProfile("Bob")
+	# print(server.listProfiles())
+	# server.renameProfile("Bob", "Not Bob ;)")
+	# print(server.listProfiles())
+
+	# print("Selected profile: ", server.getSelectedProfile())
+	# server.selectProfile("Cat 1 Crit rider Josiah (only on CU campus crit)")
+	# print("Selected profile: ", server.getSelectedProfile())
+	# server.deselectProfile()
+	# print("Selected profile: ", server.getSelectedProfile())
+
+	# server.deleteProfile("Cat 1 Crit rider Josiah (only on CU campus crit)")
+	# print(server.listProfiles())
 
 	server.serverSmartSocket.closeSocket()
