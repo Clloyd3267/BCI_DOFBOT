@@ -8,7 +8,6 @@
 from bci_dofbot_interface_pb2 import *
 from google.protobuf.any_pb2  import *
 from SmartSockets.SmartSocket import *
-from HeadsetAPIWrapper import *
 import itertools
 
 class ClientInterfaceDriver:
@@ -29,8 +28,9 @@ class ClientInterfaceDriver:
 
 	def populateBaseMessage(self, baseMessage):
 		# baseMessage.sourceAddress = self.serverSmartSocket.client_ip[0]
-		baseMessage.destinationAddress = self.serverSmartSocket.server_ip
-		baseMessage.port = self.serverSmartSocket.server_port
+		# baseMessage.destinationAddress = self.serverSmartSocket.server_ip
+		# baseMessage.port = self.serverSmartSocket.server_port
+		pass
 
 	def getNextResponseID(self):
 		return next(self.currentResponseID)
@@ -215,14 +215,14 @@ class ClientInterfaceDriver:
 
 if __name__ == "__main__":
 	# Connection information
-	server_ip = "128.153.176.67"
+	# server_ip = "128.153.176.67"
+	server_ip = "128.153.190.62"
 	server_port = 42070
 
 	# Create a server socket
 	server = ClientInterfaceDriver(server_ip, server_port)
 
 	print(server.listProfiles())
-	# server.createProfile("Cat 1 Crit rider Josiah (only on CU campus crit)")
 	# server.createProfile("Bob")
 	# print(server.listProfiles())
 	# server.renameProfile("Bob", "Not Bob ;)")
