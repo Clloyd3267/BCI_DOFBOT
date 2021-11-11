@@ -1,5 +1,5 @@
 import enum
-# import keyboard
+import keyboard
 
 from oledDriver import *
 
@@ -28,19 +28,19 @@ def main():
     while True:
 
         if currentMode == modeType.Initializing:
-            # print(modeType.Initializing.name)      # print name of enumeration
+            #print(modeType.Initializing.name)      # print name of enumeration
             oledDriver.printToOled(modeType.Initializing.name)
             currentMode = modeType.Profile_Select
         elif currentMode == modeType.Profile_Select:
             # print(modeType.Profile_Select.name)
             oledDriver.printToOled(modeType.Profile_Select.name)
-            # if keyboard.is_pressed('t'):            # trained
-            # currentMode = modeType.Live_Mode
-            # if keyboard.is_pressed('u'):            # untrained
-            # currentMode = modeType.Training_Mode
+            if input('t'):            # trained
+                currentMode = modeType.Live_Mode
+            if input('u'):            # untrained
+                currentMode = modeType.Training_Mode
         elif currentMode == modeType.Training_Mode:
-            # print(modeType.Training_Mode.name)
-            # oledDriver.printToOled(modeType.Training_Mode.name)
+            #print(modeType.Training_Mode.name)
+            oledDriver.printToOled(modeType.Training_Mode.name)
             currentMode = modeType.Live_Mode
         # elif currentMode == modeType.Live_Mode:
         # print(modeType.Live_Mode.name)
