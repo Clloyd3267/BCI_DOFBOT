@@ -1,0 +1,223 @@
+// -----------------------------------------------------------------------------
+// Name         : bci_dofbot_interface.proto
+// Date Created : 10/28/2021
+// Author(s)    : Chris Lloyd, Josiah Schmidt, Camilla Ketola, Dylan Shuhart
+// Description  : Google Protobuf message descriptions for BCI Dofbot system.
+// -----------------------------------------------------------------------------
+
+syntax = "proto3";
+
+message BaseMessage
+{
+	string sourceAddress = 1;
+	string destinationAddress = 2;
+	int32 port = 3;
+}
+
+message BaseRequest
+{
+	BaseMessage baseMessage = 1;
+	int32 id = 2;
+}
+
+enum Status
+{
+	SUCCESS = 0;
+	FAILURE = 1;
+	WARNING = 2;
+	OTHER   = 3;
+}
+
+message BaseResponse
+{
+	BaseMessage baseMessage = 1;
+
+	int32 id = 2;
+
+	int32 requestID = 3;
+
+	Status status = 4;
+
+	string statusMessage = 5;
+}
+
+message ListProfileRequest
+{
+	BaseRequest baseRequest = 1;
+}
+
+message ListProfileResponse
+{
+	BaseResponse baseResponse = 1;
+	repeated string profiles = 2;
+}
+
+message CreateProfileRequest
+{
+	BaseRequest baseRequest = 1;
+	string profileName = 2;
+}
+
+message CreateProfileResponse
+{
+	BaseResponse baseResponse = 1;
+}
+
+message RenameProfileRequest
+{
+	BaseRequest baseRequest = 1;
+	string oldProfileName = 2;
+	string newProfileName = 3;
+}
+
+message RenameProfileResponse
+{
+	BaseResponse baseResponse = 1;
+}
+
+message DeleteProfileRequest
+{
+	BaseRequest baseRequest = 1;
+	string profileName = 2;
+}
+
+message DeleteProfileResponse
+{
+	BaseResponse baseResponse = 1;
+}
+
+message SelectProfileRequest
+{
+	BaseRequest baseRequest = 1;
+	string profileName = 2;
+}
+
+message SelectProfileResponse
+{
+	BaseResponse baseResponse = 1;
+}
+
+message DeselectProfileRequest
+{
+	BaseRequest baseRequest = 1;
+}
+
+message DeselectProfileResponse
+{
+	BaseResponse baseResponse = 1;
+}
+
+message GetSelectedProfileRequest
+{
+	BaseRequest baseRequest = 1;
+}
+
+message GetSelectedProfileResponse
+{
+	BaseResponse baseResponse = 1;
+	string profileName = 2;
+}
+
+enum TrainingStatus
+{
+	START  = 0;
+	ACCEPT = 1;
+	REJECT = 2;
+	RESET  = 3;
+	ERASE  = 4;
+}
+
+enum Detection
+{
+	MENTAL_COMMAND = 0;
+	FACIAL_COMMAND = 1;
+}
+
+message TrainingRequest
+{
+	BaseRequest baseRequest = 1;
+
+	string action = 2;
+
+	Detection detectionType = 3;
+
+	TrainingStatus trainingStatus = 4;
+}
+
+message TrainingResponse
+{
+	BaseResponse baseResponse = 1;
+}
+
+message GetDetectionInfoRequest
+{
+	BaseRequest baseRequest = 1;
+
+	Detection detectionType = 2;
+}
+
+message GetDetectionInfoResponse
+{
+	BaseResponse baseResponse = 1;
+
+	repeated string actions = 2;
+}
+
+message GetTrainedSignatureActionsRequest
+{
+	BaseRequest baseRequest = 1;
+
+	Detection detectionType = 2;
+}
+
+message TrainedActions
+{
+	string action = 1;
+
+	string timesTrained = 2;
+}
+
+message GetTrainedSignatureActionsResponse
+{
+	BaseResponse baseResponse = 1;
+
+	int32 totalTimesTrained = 2;
+
+	repeated TrainedActions trainedActions = 3;
+}
+
+message StartInferencingRequest
+{
+	BaseRequest baseRequest = 1;
+}
+
+message StartInferencingResponse
+{
+	BaseResponse baseResponse = 1;
+}
+
+message StopInferencingRequest
+{
+	BaseRequest baseRequest = 1;
+}
+
+message StopInferencingResponse
+{
+	BaseResponse baseResponse = 1;
+}
+
+message ReceiveInferenceRequest
+{
+	BaseRequest baseRequest = 1;
+}
+
+message ReceiveInferenceResponse
+{
+	BaseResponse baseResponse = 1;
+
+	string action = 2;
+
+	float power = 3;
+
+	int32 time = 4;
+}
