@@ -6,6 +6,7 @@ import time
 import keyboard
 import sys
 from pydispatch import Dispatcher
+#Implement websocket once HeadsetAPI
 
 # define request id
 QUERY_HEADSET_ID = 1

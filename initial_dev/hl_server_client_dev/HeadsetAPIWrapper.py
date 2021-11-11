@@ -19,6 +19,7 @@ user = {
 
 class HeadsetAPIWrapper:
 	def __init__(self):
+		# Look at smart socket for debug print statements
 		self.c = Cortex(user) # Leave debag=False on by default
 		self.c.do_prepare_steps()  # This starts Cortex
 		self.selectedProfile = ""
@@ -43,94 +44,120 @@ class HeadsetAPIWrapper:
 			status = 'create'
 			self.c.setup_profile(profileName, status)
 
-			return True #Status.SUCCESS, "Profile {} added to profile list!".format(profileName)
+			return True, "Profile {} added to profile list!".format(profileName)
 		else:
-			# return Status.FAILURE, "Profile {} already in profile list!".format(profileName)
-			return False
+			return False, "Profile {} already in profile list!".format(profileName)
 
 	# Change the name of an existing profile
 	def renameProfile(self, oldProfileName, newProfileName):
 
 		if oldProfileName not in self.c.query_profile():
-			return False #Status.FAILURE, "Old profile {} not in profile list!".format(oldProfileName)
+			return False, "Old profile {} not in profile list!".format(oldProfileName)
 		elif newProfileName in self.c.query_profile():
-			return False #Status.FAILURE, "New profile {} already in profile list!".format(newProfileName)
+			return False, "New profile {} already in profile list!".format(newProfileName)
 		else:
 			status = 'rename'
 			self.c.setup_profile(oldProfileName, status, newProfileName)
-			return True #Status.SUCCESS, "Profile renamed from {} to {} in profile list!".format(oldProfileName, newProfileName)
+			return True, "Profile renamed from {} to {} in profile list!".format(oldProfileName, newProfileName)
 
 	# Removes a profile with a given name from the system
 	def deleteProfile(self, profileName):
 		if profileName not in self.c.query_profile():
-			return False #Status.FAILURE, "Profile {} not in profile list!".format(profileName)
+			return False, "Profile {} not in profile list!".format(profileName)
 		else:
 			status = 'delete'
 			self.c.setup_profile(profileName, status)
-			return True #Status.SUCCESS, "Profile {} removed from profile list!".format(profileName)
+			return True, "Profile {} removed from profile list!".format(profileName)
 
 	# Loads the profile with the given name
 	def selectProfile(self, profileName):
 		if profileName not in self.c.query_profile():
-			return "Profile not in list" #Status.FAILURE, "Profile {} not in profile list!".format(profileName)
+			return False, "Profile {} not in profile list!".format(profileName)
 		else:
 			self.selectedProfile = profileName
 			status = 'load'
 			self.c.setup_profile(profileName, status)
-			return True #Status.SUCCESS, "Profile {} selected!".format(profileName)
+			return True, "Profile {} selected!".format(profileName)
 
 	# Unload the profile with the given name
 	def deselectProfile(self):
 		if not self.selectedProfile:
-			return False #Status.FAILURE, "No profile selected!"
+			return False, "No profile selected!"
 		else:
 			message = "Profile {} selected!".format(self.selectedProfile)
 			status = 'unload'
 			self.c.setup_profile(self.selectedProfile, status)
 			self.selectedProfile = ""
-			return True #Status.SUCCESS, message
+			return True, message
 
 	# Return name of selected profile
 	def getSelectedProfile(self):
 		if not self.selectedProfile:
-			return "No profile selected" #Status.FAILURE, "No profile selected!", ""
+			return False, "No profile selected!", ""
 		else:
-			return self.selectedProfile #Status.SUCCESS, "Profile {} is currently selected!".format(self.selectedProfile), self.selectedProfile
+			return self.selectedProfile, "Profile {} is currently selected!".format(self.selectedProfile), self.selectedProfile
 
 # ---------------------- Training Actions ----------------------
 
-	# Trains a profile for a specific command
-	def trainProfile(self, command):
+	# Top priority
+	# Trains a profile using the given status and action
+	def trainProfile(self, action, detection, status):
 		# TODO
+		# Make sure valid detection is used
+		if detection != ('' or ''):
+			pass
 		print('Begin training -----------------------------------')
 		max_num_train = 1
 		num_train = 0
 		while num_train < max_num_train:
 			num_train = num_train + 1
 
-			print('Training {0}. Set {1} out of {2} ---------------\n'.format(command, num_train, max_num_train))
+			print('Training {0}. Set {1} out of {2} ---------------\n'.format(action, num_train, max_num_train))
 			input("Press any key to start training: ")
 			status = 'start'
-			self.c.train_request('mentalCommand', command, status)
+			self.c.train_request('mentalCommand', action, status)
 
-			print('Accepting set {0} for {1} ---------------\n'.format(num_train, command))
+			print('Accepting set {0} for {1} ---------------\n'.format(num_train, action))
 			status = 'accept'
-			self.c.train_request('mentalCommand', command, status)
+			self.c.train_request('mentalCommand', action, status)
 
 		print('Trained action was saved')
 		status = "save"
 		self.c.setup_profile(self.selectedProfile, status)
 
-	# Need clarification on what this one needs to do
-	def confirmTrain(self):
-		# TODO
-		pass
-
-	# Clears all training data from profile
+	# Very Low priority
 	def clearTrain(self):
 		# TODO
 		pass
 
+	# Get all available commands for detection type
+	def getDetectionInfo(self, detection):
+		#TODO
+		pass
+
+	def getTrainedActions(self, detection):
+		#TODO
+		pass
+
+# ---------------------- Inferencing Actions ----------------------
+
+	# Top priority
+	# Subscribe to action stream
+	def startInferencing(self):
+		#TODO
+		pass
+
+	# Top priority
+	# Unsubscribe to action stream
+	def stopInferencing(self):
+		# TODO
+		pass
+
+	# Top priority
+	# Returns headset action, power, and time
+	def receiveInference(self):
+		# TODO
+		pass
 
 if __name__ == "__main__":
 
