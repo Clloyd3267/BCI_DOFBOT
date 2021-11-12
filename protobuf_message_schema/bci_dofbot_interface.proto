@@ -139,9 +139,9 @@ message TrainingRequest
 
 	string action = 2;
 
-	Detection detectionType = 3;
+	bool detectionType = 3;
 
-	TrainingStatus trainingStatus = 4;
+	string trainingStatus = 4;
 }
 
 message TrainingResponse
