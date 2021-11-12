@@ -12,7 +12,7 @@ from bci_dofbot_interface_pb2 import *
 from google.protobuf.any_pb2 import *
 from google.protobuf.message import DecodeError
 from SmartSockets.SmartSocket import *
-from HeadsetAPIWrapperTest import *
+from HeadsetAPIWrapperTest import * # CDL=> Swap with HeadsetAPIWrapper for final version
 import itertools
 
 class ServerInterfaceDriver:
@@ -90,15 +90,15 @@ class ServerInterfaceDriver:
 		# Unpack the generic message as a specific message
 		if genericMessage.Is(ListProfileRequest.DESCRIPTOR):           # ListProfileRequest
 			# Unpack specific message
-			message = ListProfileRequest()
-			self.unpackRequestMessage(message, genericMessage)
+			requestMessage = ListProfileRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
 
 			# Handle request command
 			profileList = self.headsetAPIWrapper.listProfiles()
 
 			# Package and send response message
 			responseMessage = ListProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, Status.SUCCESS, "")
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, Status.SUCCESS, "")
 
 			# Add profile list to response
 			responseMessage.profiles.extend(profileList)
@@ -107,88 +107,156 @@ class ServerInterfaceDriver:
 
 		elif genericMessage.Is(CreateProfileRequest.DESCRIPTOR):       # CreateProfileRequest
 			# Unpack specific message
-			message = CreateProfileRequest()
-			self.unpackRequestMessage(message, genericMessage)
+			requestMessage = CreateProfileRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
 
 			# Handle request command
-			status, statusMessage = self.headsetAPIWrapper.createProfile(message.profileName)
+			status, statusMessage = self.headsetAPIWrapper.createProfile(requestMessage.profileName)
 
 			# Package and send response message
 			responseMessage = CreateProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			self.sendMessage(responseMessage)
 
 		elif genericMessage.Is(RenameProfileRequest.DESCRIPTOR):       # RenameProfileRequest
 			# Unpack specific message
-			message = RenameProfileRequest()
-			self.unpackRequestMessage(message, genericMessage)
+			requestMessage = RenameProfileRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
 
 			# Handle request command
-			status, statusMessage = self.headsetAPIWrapper.renameProfile(message.oldProfileName, message.newProfileName)
+			status, statusMessage = self.headsetAPIWrapper.renameProfile(requestMessage.oldProfileName, requestMessage.newProfileName)
 
 			# Package and send response message
 			responseMessage = RenameProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			self.sendMessage(responseMessage)
 
 		elif genericMessage.Is(DeleteProfileRequest.DESCRIPTOR):       # DeleteProfileRequest
 			# Unpack specific message
-			message = DeleteProfileRequest()
-			self.unpackRequestMessage(message, genericMessage)
+			requestMessage = DeleteProfileRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
 
 			# Handle request command
-			status, statusMessage = self.headsetAPIWrapper.deleteProfile(message.profileName)
+			status, statusMessage = self.headsetAPIWrapper.deleteProfile(requestMessage.profileName)
 
 			# Package and send response message
 			responseMessage = DeleteProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			self.sendMessage(responseMessage)
 
 		elif genericMessage.Is(SelectProfileRequest.DESCRIPTOR):       # SelectProfileRequest
 			# Unpack specific message
-			message = SelectProfileRequest()
-			self.unpackRequestMessage(message, genericMessage)
+			requestMessage = SelectProfileRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
 
 			# Handle request command
-			status, statusMessage = self.headsetAPIWrapper.selectProfile(message.profileName)
+			status, statusMessage = self.headsetAPIWrapper.selectProfile(requestMessage.profileName)
 
 			# Package and send response message
 			responseMessage = SelectProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			self.sendMessage(responseMessage)
 
 		elif genericMessage.Is(DeselectProfileRequest.DESCRIPTOR):     # DeselectProfileRequest
 			# Unpack specific message
-			message = DeselectProfileRequest()
-			self.unpackRequestMessage(message, genericMessage)
+			requestMessage = DeselectProfileRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
 
 			# Handle request command
 			status, statusMessage = self.headsetAPIWrapper.deselectProfile()
 
 			# Package and send response message
 			responseMessage = DeselectProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			self.sendMessage(responseMessage)
 
 		elif genericMessage.Is(GetSelectedProfileRequest.DESCRIPTOR):  # GetSelectedProfileRequest
 			# Unpack specific message
-			message = GetSelectedProfileRequest()
-			self.unpackRequestMessage(message, genericMessage)
+			requestMessage = GetSelectedProfileRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
 
 			# Handle request command
 			status, statusMessage, selectedProfile = self.headsetAPIWrapper.getSelectedProfile()
 
 			# Package and send response message
 			responseMessage = GetSelectedProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			# Add selected profile to response
 			responseMessage.profileName = selectedProfile
+
+			self.sendMessage(responseMessage)
+
+		elif genericMessage.Is(TrainingRequest.DESCRIPTOR):  # TrainingRequest
+			# Unpack specific message
+			requestMessage = TrainingRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
+
+			# Handle request command
+			action = requestMessage.action
+			detection = requestMessage.detectionType
+			status = requestMessage.trainingStatus
+
+			status, statusMessage = self.headsetAPIWrapper.trainProfile(action, detection, status)
+
+			# Package and send response message
+			responseMessage = TrainingResponse()
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
+
+			self.sendMessage(responseMessage)
+
+		# CDL=> GetDetectionInfoRequest
+		# CDL=> GetTrainedSignatureActionsRequest
+
+		elif genericMessage.Is(StartInferencingRequest.DESCRIPTOR):  # StartInferencingRequest
+			# Unpack specific message
+			requestMessage = StartInferencingRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
+
+			# Handle request command
+			status, statusMessage = self.headsetAPIWrapper.startInferencing()
+
+			# Package and send response message
+			responseMessage = StartInferencingResponse()
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
+
+			self.sendMessage(responseMessage)
+
+		elif genericMessage.Is(StartInferencingRequest.DESCRIPTOR):  # StartInferencingRequest
+			# Unpack specific message
+			requestMessage = StartInferencingRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
+
+			# Handle request command
+			status, statusMessage = self.headsetAPIWrapper.stopInferencing()
+
+			# Package and send response message
+			responseMessage = StopInferencingResponse()
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
+
+			self.sendMessage(responseMessage)
+
+		elif genericMessage.Is(ReceiveInferenceRequest.DESCRIPTOR):  # ReceiveInferenceRequest
+			# Unpack specific message
+			requestMessage = ReceiveInferenceRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
+
+			# Handle request command
+			status, statusMessage, action, power, time = self.headsetAPIWrapper.receiveInference()
+
+			# Package and send response message
+			responseMessage = ReceiveInferenceResponse()
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
+
+			# Fill response with inference data
+			responseMessage.action = action
+			responseMessage.power = power
+			responseMessage.time = time
 
 			self.sendMessage(responseMessage)
 
