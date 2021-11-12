@@ -77,7 +77,7 @@ class ClientInterfaceDriver:
 
 			return responseMessage.profiles
 		else:
-			print("Error parsing message. Unexpected response type {}".format(genericMessage.TypeName))
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
 			return []
 
 	def createProfile(self, profileName):
@@ -100,8 +100,8 @@ class ClientInterfaceDriver:
 
 			return responseMessage.baseResponse.status == Status.SUCCESS
 		else:
-			print("Error parsing message. Unexpected response type {}".format(genericMessage.TypeName))
-			return False
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!"
 
 	def renameProfile(self, oldProfileName, newProfileName):
 		# Package and send request message
@@ -124,8 +124,8 @@ class ClientInterfaceDriver:
 
 			return responseMessage.baseResponse.status == Status.SUCCESS
 		else:
-			print("Error parsing message. Unexpected response type {}".format(genericMessage.TypeName))
-			return False
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!"
 
 	def deleteProfile(self, profileName):
 		# Package and send request message
@@ -147,8 +147,8 @@ class ClientInterfaceDriver:
 
 			return responseMessage.baseResponse.status == Status.SUCCESS
 		else:
-			print("Error parsing message. Unexpected response type {}".format(genericMessage.TypeName))
-			return False
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!"
 
 	def selectProfile(self, profileName):
 		# Package and send request message
@@ -170,8 +170,8 @@ class ClientInterfaceDriver:
 
 			return responseMessage.baseResponse.status == Status.SUCCESS
 		else:
-			print("Error parsing message. Unexpected response type {}".format(genericMessage.TypeName))
-			return False
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!"
 
 	def deselectProfile(self):
 		# Package and send request message
@@ -190,8 +190,8 @@ class ClientInterfaceDriver:
 
 			return responseMessage.baseResponse.status == Status.SUCCESS
 		else:
-			print("Error parsing message. Unexpected response type {}".format(genericMessage.TypeName))
-			return False
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!"
 
 	def getSelectedProfile(self):
 		# Package and send request message
@@ -210,8 +210,97 @@ class ClientInterfaceDriver:
 
 			return responseMessage.profileName
 		else:
-			print("Error parsing message. Unexpected response type {}".format(genericMessage.TypeName))
-			return False
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!"
+
+	def trainProfile(self, action, detection, status):
+		# Package and send request message
+		requestMessage = TrainingRequest()
+		self.populateBaseRequest(requestMessage.baseRequest)
+
+		# Populate request message
+		requestMessage.action = action
+		requestMessage.detectionType = detection
+		requestMessage.trainingStatus = status
+
+		# Send request message
+		self.sendMessage(requestMessage)
+
+		genericMessage = self.waitForGenericMessage()
+
+		if genericMessage.Is(TrainingResponse.DESCRIPTOR):
+			# Parse message
+			responseMessage = TrainingResponse()
+			self.unpackResponseMessage(responseMessage, genericMessage)
+
+			return responseMessage.baseResponse.status == Status.SUCCESS, responseMessage.baseResponse.statusMessage
+		else:
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!"
+
+	def startInferencing(self):
+		# Package and send request message
+		requestMessage = StartInferencingRequest()
+		self.populateBaseRequest(requestMessage.baseRequest)
+
+		# Send request message
+		self.sendMessage(requestMessage)
+
+		genericMessage = self.waitForGenericMessage()
+
+		if genericMessage.Is(StartInferencingResponse.DESCRIPTOR):
+			# Parse message
+			responseMessage = StartInferencingResponse()
+			self.unpackResponseMessage(responseMessage, genericMessage)
+
+			return responseMessage.baseResponse.status == Status.SUCCESS, responseMessage.baseResponse.statusMessage
+		else:
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!"
+
+	def stopInferencing(self):
+		# Package and send request message
+		requestMessage = StopInferencingRequest()
+		self.populateBaseRequest(requestMessage.baseRequest)
+
+		# Send request message
+		self.sendMessage(requestMessage)
+
+		genericMessage = self.waitForGenericMessage()
+
+		if genericMessage.Is(StopInferencingResponse.DESCRIPTOR):
+			# Parse message
+			responseMessage = StopInferencingResponse()
+			self.unpackResponseMessage(responseMessage, genericMessage)
+
+			return responseMessage.baseResponse.status == Status.SUCCESS, responseMessage.baseResponse.statusMessage
+		else:
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!"
+
+	def receiveInference(self):
+		# Package and send request message
+		requestMessage = ReceiveInferenceRequest()
+		self.populateBaseRequest(requestMessage.baseRequest)
+
+		# Send request message
+		self.sendMessage(requestMessage)
+
+		genericMessage = self.waitForGenericMessage()
+
+		if genericMessage.Is(ReceiveInferenceResponse.DESCRIPTOR):
+			# Parse message
+			responseMessage = ReceiveInferenceResponse()
+			self.unpackResponseMessage(responseMessage, genericMessage)
+
+			action = responseMessage.action
+			power = responseMessage.power
+			time = responseMessage.time
+
+			return responseMessage.baseResponse.status == Status.SUCCESS, responseMessage.baseResponse.statusMessage, action, power, time
+		else:
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!"
 
 if __name__ == "__main__":
 	# Connection information
@@ -236,5 +325,6 @@ if __name__ == "__main__":
 
 	# server.deleteProfile("Cat 1 Crit rider Josiah (only on CU campus crit)")
 	# print(server.listProfiles())
+	# print(server.receiveInference())
 
 	server.serverSmartSocket.closeSocket()
