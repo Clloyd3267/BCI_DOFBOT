@@ -12,7 +12,7 @@ from bci_dofbot_interface_pb2 import *
 from google.protobuf.any_pb2 import *
 from google.protobuf.message import DecodeError
 from SmartSockets.SmartSocket import *
-from HeadsetAPIWrapper import *
+from HeadsetAPIWrapperTest import *
 import itertools
 
 class ServerInterfaceDriver:
@@ -31,7 +31,7 @@ class ServerInterfaceDriver:
 	def __init__(self, server_ip, server_port):
 
 		# Initialize server socket
-		self.serverSmartSocket = SmartSocket(server_ip, server_port, SocketType.CLIENT)
+		self.serverSmartSocket = SmartSocket(server_ip, server_port, SocketType.SERVER)
 
 		# The current response id
 		self.currentResponseID = itertools.count(start=1)
@@ -51,9 +51,11 @@ class ServerInterfaceDriver:
 		baseResponse.statusMessage = statusMessage
 
 	def populateBaseMessage(self, baseMessage):
-		baseMessage.sourceAddress = self.serverSmartSocket.server_ip
-		baseMessage.destinationAddress = self.serverSmartSocket.client_ip[0]
-		baseMessage.port = self.serverSmartSocket.server_port
+		pass
+		# baseMessage.sourceAddress = self.serverSmartSocket.server_ip
+		# baseMessage.destinationAddress = self.serverSmartSocket.client_ip[0]
+		# baseMessage.port = self.serverSmartSocket.server_port
+		#CDL=>
 
 	def getNextResponseID(self):
 		return next(self.currentResponseID)
@@ -70,6 +72,9 @@ class ServerInterfaceDriver:
 			messageByteString = self.serverSmartSocket.receiveMessage()
 
 		return messageByteString
+
+	def getEnumStatus(self, booleanStatus):
+		return Status.SUCCESS if booleanStatus else Status.FAILURE
 
 	def handleMessage(self, messageByteString):
 		# Create a new generic protobuf message
@@ -110,7 +115,7 @@ class ServerInterfaceDriver:
 
 			# Package and send response message
 			responseMessage = CreateProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, status, statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			self.sendMessage(responseMessage)
 
@@ -124,7 +129,7 @@ class ServerInterfaceDriver:
 
 			# Package and send response message
 			responseMessage = RenameProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, status, statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			self.sendMessage(responseMessage)
 
@@ -138,7 +143,7 @@ class ServerInterfaceDriver:
 
 			# Package and send response message
 			responseMessage = DeleteProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, status, statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			self.sendMessage(responseMessage)
 
@@ -152,7 +157,7 @@ class ServerInterfaceDriver:
 
 			# Package and send response message
 			responseMessage = SelectProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, status, statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			self.sendMessage(responseMessage)
 
@@ -166,7 +171,7 @@ class ServerInterfaceDriver:
 
 			# Package and send response message
 			responseMessage = DeselectProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, status, statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			self.sendMessage(responseMessage)
 
@@ -180,7 +185,7 @@ class ServerInterfaceDriver:
 
 			# Package and send response message
 			responseMessage = GetSelectedProfileResponse()
-			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, status, statusMessage)
+			self.populateBaseResponse(responseMessage.baseResponse, message.baseRequest, self.getEnumStatus(status), statusMessage)
 
 			# Add selected profile to response
 			responseMessage.profileName = selectedProfile
@@ -193,7 +198,7 @@ class ServerInterfaceDriver:
 
 if __name__ == "__main__":
 	# Connection information
-	server_ip = "128.153.176.67"
+	server_ip = "128.153.190.62"
 	server_port = 42070
 
 	# Create a server socket
@@ -204,6 +209,6 @@ if __name__ == "__main__":
 		while True:
 			message = server.waitForMessage()
 			server.handleMessage(message)
-	except:
+	except KeyboardInterrupt:
 		print("Keyboard interrupt issued. Server is shutting down!")
 
