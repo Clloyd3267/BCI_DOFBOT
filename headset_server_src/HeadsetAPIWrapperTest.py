@@ -58,3 +58,20 @@ class HeadsetAPIWrapper:
 			return False, "No profile selected!", ""
 		else:
 			return True, "Profile {} is currently selected!".format(self.selectedProfile), self.selectedProfile
+
+	def trainProfile(self, action, detection, status):
+		return True, "Action: {}, Detection: {}, Status: {}".format(action, detection, status), action
+
+	def startInferencing(self):
+		return True, "Inferencing started!"
+
+	def stopInferencing(self):
+		return True, "Inferencing stopped!"
+
+	def receiveInference(self):
+		status = True
+		message = ""
+		action = ""
+		power = 0.9
+		time = 69420
+		return status, message, action, power, time
