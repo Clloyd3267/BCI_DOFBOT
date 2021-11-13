@@ -1,14 +1,24 @@
 # Setup Google Protobuf Installation
-# For aarch64 Raspberry Pi
-
-# Get Protobuf Compiler
-wget https://github.com/protocolbuffers/protobuf/releases/download/v3.19.1/protoc-3.19.1-linux-aarch_64.zip
-
-# Compile the .proto File
-./bin/protoc --python_out=./ ./bci_dofbot_interface.proto
 
 # Install Protobuf using pip
+```bash
 pip install protobuf
+```
+
+# For aarch64 Raspberry Pi Linux
+
+```bash
+# Change dir to the protobuf folder
+cd BCI_DOFBOT/protobuf_message_schema/
+
+# Get the compiler zip file and unzip it
+wget https://github.com/protocolbuffers/protobuf/releases/download/v3.19.1/protoc-3.19.1-linux-aarch_64.zip
+unzip protoc-3.19.1-linux-aarch_64.zip -d protoc-3.19.1-linux-aarch_64
+
+# Compile protobuf file to client folder
+cd protoc-3.19.1-linux-aarch_64
+./bin/protoc.exe --python_out=../../dofbot_client_src/ --proto_path=../ ../bci_dofbot_interface.proto
+```
 
 # Windows
 
@@ -16,5 +26,6 @@ pip install protobuf
 https://github.com/protocolbuffers/protobuf/releases/download/v3.19.1/protoc-3.19.1-win64.zip
 
 # Open a command prompt in the extracted folder "protoc-3.19.1-win64/" and run the following command
-# Replace <SRC_FOLDER> with either "headset_server_src" or "dofbot_client_src" depending on whether on the server or client
-./bin/protoc.exe --python_out=../../<SRC_FOLDER>/ --proto_path=../ ../bci_dofbot_interface.proto
+```bash
+./bin/protoc.exe --python_out=../../headset_server_src/ --proto_path=../ ../bci_dofbot_interface.proto
+```
