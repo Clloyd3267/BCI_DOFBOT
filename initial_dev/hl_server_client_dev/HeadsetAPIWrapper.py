@@ -20,9 +20,9 @@ user = {
 class HeadsetAPIWrapper:
 	def __init__(self):
 		# Look at smart socket for debug print statements
-		self.c = Cortex(user) # Leave debag=False on by default
+		self.c = Cortex(user)  # Leave debag=False on by default
 		self.c.do_prepare_steps()  # This starts Cortex
-		self.selectedProfile = ""
+		self.selectedProfile = ""  # Look into using queryProfile for this one too.
 
 # ---------------------- Debug Actions ----------------------
 
@@ -31,8 +31,6 @@ class HeadsetAPIWrapper:
 # ---------------------- Profile Actions ----------------------
 
 	# Make a list of strings containing the profile names
-	#TODO
-	# Make with query_profile
 	def listProfiles(self):
 		return self.c.query_profile()
 
@@ -183,5 +181,5 @@ if __name__ == "__main__":
 	h.selectProfile("ToTrain")
 	print(h.getSelectedProfile())
 
-	h.trainProfile('neutral')
+	# h.trainProfile('neutral')
 
