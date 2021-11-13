@@ -23,6 +23,7 @@ class HeadsetAPIWrapper:
 		self.c = Cortex(user) # Leave debag=False on by default
 		self.c.do_prepare_steps()  # This starts Cortex
 		self.selectedProfile = ""
+		self.stream = 'com'  # Receives mental cmmand data by default
 
 # ---------------------- Debug Actions ----------------------
 
@@ -100,10 +101,15 @@ class HeadsetAPIWrapper:
 	# Top priority
 	# Trains a profile using the given status and action
 	def trainProfile(self, action, detection, status):
-		# TODO
-		# Make sure valid detection is used
+
+		print("in training")
 		if detection != ('mentalCommand' or 'facialExpression'):
 			return False, "Detection must be set to 'mentalCommand' or 'facialExpression'"
+
+		if detection == 'mentalCommand':
+			self.stream = 'com'
+		else:
+			self.stream = 'fac'
 
 		# Make ure valid status is used
 		if status != ('start' or 'accept' or 'reject' or 'reset' or 'erase'):
@@ -135,20 +141,19 @@ class HeadsetAPIWrapper:
 	# Top priority
 	# Subscribe to action stream
 	def startInferencing(self):
-		#TODO
-		pass
+		self.c.subscribe(self.stream)
 
 	# Top priority
 	# Unsubscribe to action stream
 	def stopInferencing(self):
-		# TODO
-		pass
+		self.c.subscribe(self.stream, True)
+
 
 	# Top priority
 	# Returns headset action, power, and time
-	def receiveInference(self, stream):
-		stream_name = stream['streamName']
-		stream_labels = stream['cols']
+	def receiveInference(self):
+		stream_name = self.stream['streamName']
+		stream_labels = self.stream['cols']
 		print(stream_name, stream_labels)
 		# return self.c.extract_data_labels(stream_name, stream_labels)
 		# pass
@@ -179,6 +184,8 @@ if __name__ == "__main__":
 	print(h.getSelectedProfile())
 
 	h.trainProfile('neutral', 'mentalCommand', 'start')
+
+	h.receiveInference()
 
 
 

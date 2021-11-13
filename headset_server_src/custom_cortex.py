@@ -377,6 +377,34 @@ class Cortex(Dispatcher):
                     count = count + 1
                 return
 
+    def subscribe(self, stream, unsub=False):
+
+        if unsub is True:
+            met = "unsubscribe"
+        else:
+            met = "subscribe"
+
+        sub_json = {
+            "id": 1,
+            "jsonrpc": "2.0",
+            "method": met,
+            "params": {
+                "cortexToken": self.auth,
+                "session": self.session_id,
+                "streams": stream
+            }
+        }
+
+        self.ws.send(json.dumps(sub_json))
+
+        # handle subscribe response
+        new_data = self.ws.recv()
+        result_dic = json.loads(new_data)
+
+        print(json.dumps(result_dic, indent=4))
+
+        return
+
     # def unsubscribe_request(self, stream):
     #     print('Unsubscribe request --------------------------------')
     #     sub_request_json = {
