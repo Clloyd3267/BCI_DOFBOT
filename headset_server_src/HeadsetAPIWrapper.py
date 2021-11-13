@@ -141,7 +141,8 @@ class HeadsetAPIWrapper:
 	# Top priority
 	# Subscribe to action stream
 	def startInferencing(self):
-		self.c.subscribe(self.stream)
+		# self.c.subscribe(self.stream)
+		self.c.sub_request(self.stream)
 
 	# Top priority
 	# Unsubscribe to action stream
@@ -184,7 +185,7 @@ if __name__ == "__main__":
 	print(h.getSelectedProfile())
 
 	h.trainProfile('neutral', 'mentalCommand', 'start')
-
+	print("after train called")
 	h.receiveInference()
 
 
