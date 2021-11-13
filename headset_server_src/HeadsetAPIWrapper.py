@@ -30,9 +30,7 @@ class HeadsetAPIWrapper:
 
 # ---------------------- Profile Actions ----------------------
 
-	# Make a list of strings containing the profile names
-	#TODO
-	# Make with query_profile
+	# Make a list of strings containing the profile name
 	def listProfiles(self):
 		return self.c.query_profile()
 
@@ -104,26 +102,19 @@ class HeadsetAPIWrapper:
 	def trainProfile(self, action, detection, status):
 		# TODO
 		# Make sure valid detection is used
-		if detection != ('' or ''):
-			pass
-		print('Begin training -----------------------------------')
-		max_num_train = 1
-		num_train = 0
-		while num_train < max_num_train:
-			num_train = num_train + 1
+		if detection != ('mentalCommand' or 'facialExpression'):
+			return False, "Detection must be set to 'mentalCommand' or 'facialExpression'"
 
-			print('Training {0}. Set {1} out of {2} ---------------\n'.format(action, num_train, max_num_train))
-			input("Press any key to start training: ")
-			status = 'start'
-			self.c.train_request('mentalCommand', action, status)
+		# Make ure valid status is used
+		if status != ('start' or 'accept' or 'reject' or 'reset' or 'erase'):
+			return False, "Status input must be 'start' or 'accept' or 'reject' or 'reset' or 'erase'"
 
-			print('Accepting set {0} for {1} ---------------\n'.format(num_train, action))
-			status = 'accept'
-			self.c.train_request('mentalCommand', action, status)
+		print('{} training -----------------------------------'.format(status))
 
-		print('Trained action was saved')
-		status = "save"
-		self.c.setup_profile(self.selectedProfile, status)
+		self.c.train_request(detection, action, status)
+
+		return True, "{} {} training request was successful".format(status, action)
+
 
 	# Very Low priority
 	def clearTrain(self):
@@ -155,9 +146,13 @@ class HeadsetAPIWrapper:
 
 	# Top priority
 	# Returns headset action, power, and time
-	def receiveInference(self):
-		# TODO
-		pass
+	def receiveInference(self, stream):
+		stream_name = stream['streamName']
+		stream_labels = stream['cols']
+		print(stream_name, stream_labels)
+		# return self.c.extract_data_labels(stream_name, stream_labels)
+		# pass
+
 
 if __name__ == "__main__":
 
@@ -183,5 +178,7 @@ if __name__ == "__main__":
 	h.selectProfile("ToTrain")
 	print(h.getSelectedProfile())
 
-	h.trainProfile('neutral')
+	h.trainProfile('neutral', 'mentalCommand', 'start')
+
+
 
