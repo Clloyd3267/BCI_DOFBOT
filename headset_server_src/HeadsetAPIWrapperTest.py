@@ -71,7 +71,8 @@ class HeadsetAPIWrapper:
 	def receiveInference(self):
 		status = True
 		message = ""
-		action = ""
+		# action = ""
 		power = 0.9
 		time = 69420
+		action = input("Enter an action: ")
 		return status, message, action, power, time
