@@ -1,6 +1,7 @@
 import control
 from ClientInterfaceDriver import *
 import time
+from SmartSockets.SmartSocket import *
 
 class ModeType(enum.Enum):
     INITIALIZATION = 1
@@ -13,11 +14,13 @@ def keyboardPluggedIn():
 
 if __name__ == "__main__":
 	# Connection information
-	server_ip = "128.153.190.62" # CDL=> My IP (headset system)
+	server_ip = "128.153.178.74" # CDL=> My IP (headset system)
 	server_port = 42070
 
 	# Create a client socket
 	server = ClientInterfaceDriver(server_ip, server_port)
+
+	myClient = SmartSocket(server_ip, 42071, SocketType.CLIENT)
 
 
 	# currentMode = ModeType.INITIALIZATION
@@ -53,26 +56,47 @@ if __name__ == "__main__":
 			status, message = server.startInferencing()
 
 			print(message)
-
+			prevAction = ""
 			while True:
-				# Get inference
-				status, message, action, power, time = server.receiveInference()
-
-				if not status:
-					print(message)
-				elif action == "neutral":
-					pass
-				elif action == "lift":
-					control.grab_and_get()
-					time.sleep(1)
-				elif action == "drop":
-					control.put_back()
-					time.sleep(1)
-				elif action == "disappear":
-					control.take_picture()
-					time.sleep(1)
+				message = myClient.receiveMessage()
+				if not message:
+					continue
 				else:
-					print("Invalid Inference")
+					action = message.decode()
+					if prevAction == action:
+						pass
+					elif action == "neutral":
+						pass
+					elif action == "lift":
+						control.grab_and_get()
+						time.sleep(1)
+					elif action == "drop":
+						control.put_back()
+						time.sleep(1)
+					elif action == "disappear":
+						control.take_picture()
+						time.sleep(1)
+					else:
+						print("Invalid Inference")
+					prevAction = action
+				# # Get inference
+				# # status, message, action, pow, t = server.receiveInference()
+
+				# if not status:
+				# 	print(message)
+				# elif action == "neutral":
+				# 	pass
+				# elif action == "lift":
+				# 	control.grab_and_get()
+				# 	time.sleep(1)
+				# elif action == "drop":
+				# 	control.put_back()
+				# 	time.sleep(1)
+				# elif action == "disappear":
+				# 	control.take_picture()
+				# 	time.sleep(1)
+				# else:
+				# 	print("Invalid Inference")
 
 	# 		if previousMode != currentMode:
 	# 			print("Entering {} mode".format(currentMode.name))
