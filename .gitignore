@@ -127,3 +127,29 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+*.iml
+*.xml
+.idea/BCI_DOFBOT.iml
+.idea/misc.xml
+.idea/vcs.xml
+protobuf_message_schema/protoc-3.19.1-win64/bin/protoc.exe
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/any.proto
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/api.proto
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/compiler/plugin.proto
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/descriptor.proto
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/duration.proto
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/empty.proto
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/field_mask.proto
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/source_context.proto
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/struct.proto
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/timestamp.proto
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/type.proto
+protobuf_message_schema/protoc-3.19.1-win64/include/google/protobuf/wrappers.proto
+.idea/BCI_DOFBOT.iml
+.idea/misc.xml
+.idea/vcs.xml
+bci_dofbot_interface_pb2.py
+protobuf_message_schema/protoc-3.19.1-win64/readme.txt
+**/SmartSockets
+protoc-**_64
+*.zip
