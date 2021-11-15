@@ -153,3 +153,5 @@ protobuf_message_schema/protoc-3.19.1-win64/readme.txt
 **/SmartSockets
 protoc-**_64
 *.zip
+.idea/BCI_DOFBOT.iml
+.idea/misc.xml
