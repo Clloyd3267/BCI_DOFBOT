@@ -36,7 +36,7 @@ def main():
             oledDriver.printToOled(modeType.Profile_Select.name)
             print('Enter mode: ')
             t = input()
-            if t = liveMode:            # trained
+            #if t = liveMode:            # trained
                 #currentMode = modeType.Live_Mode
             #if input('u'):            # untrained
                 #currentMode = modeType.Training_Mode
