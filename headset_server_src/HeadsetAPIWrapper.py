@@ -7,6 +7,7 @@
 
 # Imports
 # from bci_dofbot_interface_pb2 import *
+from SmartSockets.SmartSocket import *
 from custom_cortex import Cortex
 
 # Global Variables
@@ -19,11 +20,16 @@ user = {
 
 class HeadsetAPIWrapper:
 	def __init__(self):
-		# Look at smart socket for debug print statements
-		self.c = Cortex(user) # Leave debag=False on by default
+		self.c = Cortex(user)
 		self.c.do_prepare_steps()  # This starts Cortex
 		self.selectedProfile = ""
-		self.stream = 'com'  # Receives mental cmmand data by default
+		self.stream = ['com']  # Receives mental command data by default
+		self.c.bind(new_com_data=self.on_new_data)
+		self.selectedAction = ''
+		self.server_ip = "128.153.178.74"
+		self.server_port = 42071
+		# Create a server socket
+		self.server = SmartSocket(self.server_ip, self.server_port, SocketType.SERVER, debug=True)
 
 # ---------------------- Debug Actions ----------------------
 
@@ -94,7 +100,7 @@ class HeadsetAPIWrapper:
 		if not self.selectedProfile:
 			return False, "No profile selected!", ""
 		else:
-			return self.selectedProfile, "Profile {} is currently selected!".format(self.selectedProfile), self.selectedProfile
+			return True, "Profile {} is currently selected!".format(self.selectedProfile), self.selectedProfile
 
 # ---------------------- Training Actions ----------------------
 
@@ -143,12 +149,13 @@ class HeadsetAPIWrapper:
 	def startInferencing(self):
 		# self.c.subscribe(self.stream)
 		self.c.sub_request(self.stream)
+		return True, ""
 
 	# Top priority
 	# Unsubscribe to action stream
 	def stopInferencing(self):
 		self.c.subscribe(self.stream, True)
-
+		return False, ""
 
 	# Top priority
 	# Returns headset action, power, and time
@@ -157,7 +164,16 @@ class HeadsetAPIWrapper:
 		stream_labels = self.stream['cols']
 		print(stream_name, stream_labels)
 		# return self.c.extract_data_labels(stream_name, stream_labels)
-		# pass
+		return True, "", self.selectedAction, 0.5, 12
+
+	# This function emits the command detected by cortex
+	def on_new_data(self, *args, **kwargs):
+		data = kwargs.get('data')
+		self.oldAction = self.selectedAction
+		self.selectedAction = data['action']
+		print(self.selectedAction)
+		if self.oldAction != self.selectedAction:
+			self.server.sendMessage(self.selectedAction.encode())
 
 
 if __name__ == "__main__":
@@ -184,6 +200,10 @@ if __name__ == "__main__":
 	h.selectProfile("ToTrain")
 	print(h.getSelectedProfile())
 
+	h.deselectProfile()
+	print(h.getSelectedProfile())
+
+	print("before train is called")
 	h.trainProfile('neutral', 'mentalCommand', 'start')
 	print("after train called")
 	h.receiveInference()
