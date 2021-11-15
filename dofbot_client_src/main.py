@@ -34,10 +34,10 @@ def main():
         elif currentMode == modeType.Profile_Select:
             # print(modeType.Profile_Select.name)
             oledDriver.printToOled(modeType.Profile_Select.name)
-            if input('t'):            # trained
-                currentMode = modeType.Live_Mode
-            if input('u'):            # untrained
-                currentMode = modeType.Training_Mode
+            #if input('t'):            # trained
+                #currentMode = modeType.Live_Mode
+            #if input('u'):            # untrained
+                #currentMode = modeType.Training_Mode
         elif currentMode == modeType.Training_Mode:
             #print(modeType.Training_Mode.name)
             oledDriver.printToOled(modeType.Training_Mode.name)
