@@ -57,7 +57,6 @@ class ClientInterfaceDriver:
 
 		# Fill generic message with incoming packet
 		genericMessage.ParseFromString(messageByteString)
-
 		return genericMessage
 
 	def listProfiles(self):
@@ -246,7 +245,7 @@ class ClientInterfaceDriver:
 		# Send request message
 		self.sendMessage(requestMessage)
 
-		genericMessage = self.waitForGenericMessage()
+		genericMessage = self.waitForGenericMessage() # CDL=> COme bak here ;)
 
 		if genericMessage.Is(StartInferencingResponse.DESCRIPTOR):
 			# Parse message
@@ -305,7 +304,7 @@ class ClientInterfaceDriver:
 if __name__ == "__main__":
 	# Connection information
 	# server_ip = "128.153.176.67"
-	server_ip = "128.153.190.62"
+	server_ip = "128.153.178.74" # 128.153.190.62
 	server_port = 42070
 
 	# Create a server socket
