@@ -227,9 +227,9 @@ class ServerInterfaceDriver:
 
 			self.sendMessage(responseMessage)
 
-		elif genericMessage.Is(StartInferencingRequest.DESCRIPTOR):  # StartInferencingRequest
+		elif genericMessage.Is(StopInferencingRequest.DESCRIPTOR):  # StartInferencingRequest
 			# Unpack specific message
-			requestMessage = StartInferencingRequest()
+			requestMessage = StopInferencingRequest()
 			self.unpackRequestMessage(requestMessage, genericMessage)
 
 			# Handle request command
