@@ -10,6 +10,9 @@ class modeType(enum.Enum):  # creating enumerations with class
     Training_Mode = 3
     Live_Mode = 4
 
+    def keyboardPluggedIn():
+        return True
+
 
 # oledDriver = Draw()
 
