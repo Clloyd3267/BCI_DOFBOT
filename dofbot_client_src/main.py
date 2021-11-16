@@ -7,13 +7,13 @@ from SmartSockets.SmartSocket import *
 
 
 class modeType(enum.Enum):  # creating enumerations with class
-    Initializing = 1
-    Profile_Select = 2
-    Training_Mode = 3
-    Live_Mode = 4
+	Initializing = 1
+	Profile_Select = 2
+	Training_Mode = 3
+	Live_Mode = 4
 
-    def keyboardPluggedIn():
-        return True
+	def keyboardPluggedIn():
+		return True
 
 
 # oledDriver = Draw()
@@ -35,10 +35,12 @@ def main():
             #oledDriver.printToOled(modeType.Initializing.name)
             currentMode = modeType.Profile_Select
         elif currentMode == modeType.Profile_Select:
+            createProfile = server.createProfile()
             profileList = server.listProfiles()
 
+            print()
             print("-----Select Profile-----")
-            
+            print("Current Profile List")
 
 
             # print(modeType.Profile_Select.name)
