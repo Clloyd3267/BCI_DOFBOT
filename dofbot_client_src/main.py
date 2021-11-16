@@ -1,6 +1,5 @@
 import enum
 import time
-import control
 from ClientInterfaceDriver import *
 from SmartSockets.SmartSocket import *
 
@@ -39,8 +38,7 @@ def main():
             profileList = server.listProfiles()
 
             print("-----Select Profile-----")
-            for index, value in enumerate(profileList):
-				print ("{} | {}".format(index, value))
+            
 
 
             # print(modeType.Profile_Select.name)
