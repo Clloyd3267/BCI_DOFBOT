@@ -1,9 +1,8 @@
 import enum
-#import keyboard
 from ClientInterfaceDriver import *
 from SmartSockets.SmartSocket import *
 
-from oledDriver import *
+#from oledDriver import *
 
 
 class modeType(enum.Enum):  # creating enumerations with class
