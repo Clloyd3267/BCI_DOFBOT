@@ -1,4 +1,6 @@
 import enum
+import time
+import control
 from ClientInterfaceDriver import *
 from SmartSockets.SmartSocket import *
 
@@ -26,7 +28,7 @@ class modeType(enum.Enum):  # creating enumerations with class
 def main():
     previousMode = None
     currentMode = modeType.Initializing  # set default mode to Initialization
-    oledDriver = Draw()
+    #oledDriver = Draw()
     while True:
 
         if currentMode == modeType.Initializing:
@@ -37,6 +39,9 @@ def main():
             profileList = server.listProfiles()
 
             print("-----Select Profile-----")
+            for index, value in enumerate(profileList):
+				print ("{} | {}".format(index, value))
+
 
             # print(modeType.Profile_Select.name)
             #oledDriver.printToOled(modeType.Profile_Select.name)
