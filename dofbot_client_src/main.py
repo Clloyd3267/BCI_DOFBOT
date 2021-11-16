@@ -9,8 +9,6 @@ class modeType(enum.Enum):  # creating enumerations with class
     Profile_Select = 2
     Training_Mode = 3
     Live_Mode = 4
-    # AI_Assist_Mode = 5
-    # Game_Mode = 6
 
 
 # oledDriver = Draw()
