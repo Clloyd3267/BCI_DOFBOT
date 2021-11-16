@@ -39,14 +39,16 @@ def main():
 			createProfile = server.createProfile()
 			profileList = server.listProfiles()
 			
-			#print("--------Select or Create a Profile---------")
+			print("--------Select or Create a Profile---------")
 			userInput = input("Type Select or Create")
 
-			if userInput == select:
+			if userInput == 'select':
 				print("Current Profile List:")
 				print("Index | Profile Name")
 				for index, value in enumerate(profileList):
 					print ("{} | {}".format(index, value))
+			elif userInput == 'create':
+				print('Name Profile')
 
 
 			# print(modeType.Profile_Select.name)
