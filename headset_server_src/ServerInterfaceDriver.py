@@ -12,7 +12,7 @@ from bci_dofbot_interface_pb2 import *
 from google.protobuf.any_pb2 import *
 from google.protobuf.message import DecodeError
 from SmartSockets.SmartSocket import *
-from HeadsetAPIWrapperTest import * # CDL=> Swap with HeadsetAPIWrapper for final version
+from HeadsetAPIWrapper import * # CDL=> Swap with HeadsetAPIWrapper for final version
 import itertools
 
 class ServerInterfaceDriver:
@@ -266,7 +266,7 @@ class ServerInterfaceDriver:
 
 if __name__ == "__main__":
 	# Connection information
-	server_ip = "128.153.190.62"
+	server_ip = "128.153.178.53"
 	server_port = 42070
 
 	# Create a server socket
