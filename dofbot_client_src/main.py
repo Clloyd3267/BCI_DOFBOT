@@ -1,5 +1,7 @@
 import enum
-import keyboard
+#import keyboard
+from ClientInterfaceDriver import *
+from SmartSockets.SmartSocket import *
 
 from oledDriver import *
 
@@ -30,18 +32,22 @@ def main():
 
         if currentMode == modeType.Initializing:
             #print(modeType.Initializing.name)      # print name of enumeration
-            oledDriver.printToOled(modeType.Initializing.name)
+            #oledDriver.printToOled(modeType.Initializing.name)
             currentMode = modeType.Profile_Select
         elif currentMode == modeType.Profile_Select:
+            profileList = server.listProfiles()
+
+            print("-----Select Profile-----")
+
             # print(modeType.Profile_Select.name)
-            oledDriver.printToOled(modeType.Profile_Select.name)
+            #oledDriver.printToOled(modeType.Profile_Select.name)
             #if input('t'):            # trained
                 #currentMode = modeType.Live_Mode
             #if input('u'):            # untrained
                 #currentMode = modeType.Training_Mode
         elif currentMode == modeType.Training_Mode:
             #print(modeType.Training_Mode.name)
-            oledDriver.printToOled(modeType.Training_Mode.name)
+            #oledDriver.printToOled(modeType.Training_Mode.name)
             currentMode = modeType.Live_Mode
         # elif currentMode == modeType.Live_Mode:
         # print(modeType.Live_Mode.name)
