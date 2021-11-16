@@ -153,3 +153,17 @@ protobuf_message_schema/protoc-3.19.1-win64/readme.txt
 **/SmartSockets
 protoc-**_64
 *.zip
+protobuf_message_schema/bin/protoc.exe
+protobuf_message_schema/include/google/protobuf/any.proto
+protobuf_message_schema/include/google/protobuf/api.proto
+protobuf_message_schema/include/google/protobuf/compiler/plugin.proto
+protobuf_message_schema/include/google/protobuf/descriptor.proto
+protobuf_message_schema/include/google/protobuf/duration.proto
+protobuf_message_schema/include/google/protobuf/empty.proto
+protobuf_message_schema/include/google/protobuf/field_mask.proto
+protobuf_message_schema/include/google/protobuf/source_context.proto
+protobuf_message_schema/include/google/protobuf/struct.proto
+protobuf_message_schema/include/google/protobuf/timestamp.proto
+protobuf_message_schema/include/google/protobuf/type.proto
+protobuf_message_schema/include/google/protobuf/wrappers.proto
+protobuf_message_schema/readme.txt

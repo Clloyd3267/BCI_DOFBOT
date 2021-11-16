@@ -328,7 +328,7 @@ class Cortex(Dispatcher):
     def getStreamEvent(self):
         count = 0
         # Handle data event
-        while True:
+        while self.streamThreadRunning:
             # try:new_dat
             pressed = 0
             new_data = self.ws.recv()
@@ -396,6 +396,8 @@ class Cortex(Dispatcher):
                 self.streamThreadRunning = False
 
     def unsub_request(self, stream):
+        # Stop the streaming thread from running
+        self.streamThreadRunning = False
         print('unsubscribe request --------------------------------')
         unsub_request_json = {
             "jsonrpc": "2.0",
@@ -410,9 +412,14 @@ class Cortex(Dispatcher):
 
         self.ws.send(json.dumps(unsub_request_json))
 
+        result_dic = {}
+
         # handle unsubscribe response
-        new_data = self.ws.recv()
-        result_dic = json.loads(new_data)
+        while True:
+            new_data = self.ws.recv()
+            result_dic = json.loads(new_data)
+            if result_dic.get("id") == SUB_REQUEST_ID:
+                break
 
         # CDL=> Find error status to check
         # if CDL=>error:
@@ -420,8 +427,7 @@ class Cortex(Dispatcher):
 
         print(json.dumps(result_dic, indent=4))
 
-        # Stop the streaming thread from running
-        self.streamThreadRunning = False
+
 
     def extract_data_labels(self, stream_name, stream_cols):
         data = {}
