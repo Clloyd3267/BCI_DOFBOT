@@ -12,8 +12,8 @@ class modeType(enum.Enum):  # creating enumerations with class
 	Training_Mode = 3
 	Live_Mode = 4
 
-	def keyboardPluggedIn():
-		return True
+def keyboardPluggedIn():
+	return True
 
 
 # oledDriver = Draw()
@@ -38,8 +38,8 @@ def main():
             createProfile = server.createProfile()
             profileList = server.listProfiles()
 
-            print()
-            print("-----Select Profile-----")
+
+            print("--------Select or Create a Profile---------")
             print("Current Profile List")
 
 
