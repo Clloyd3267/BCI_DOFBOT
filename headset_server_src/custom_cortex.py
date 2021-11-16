@@ -42,7 +42,7 @@ class Cortex(Dispatcher):
         self.debug = debug_mode
         self.first = True
         self.sid = None
-        self.currentInference = ""
+        self.currentInference = {'action': None, 'power': None, 'time': None}
         self.streamThreadRunning = False
 
 
@@ -321,7 +321,7 @@ class Cortex(Dispatcher):
 
     def getCurrentInference(self):
         if self.streamThreadRunning:
-            return self.inference['action'], self.inference['power'], self.inference['time']
+            return self.currentInference['action'] , self.currentInference['power'], self.currentInference['time']
         else:
             return None, None, None
 
@@ -342,7 +342,7 @@ class Cortex(Dispatcher):
                 com_data['action'] = result_dic['com'][0]
                 com_data['power'] = result_dic['com'][1]
                 com_data['time'] = result_dic['time']
-                self.inference = com_data
+                self.currentInference = com_data
                 self.emit('new_com_data', data=com_data)
             elif result_dic.get('fac') != None:
                 fe_data = {}

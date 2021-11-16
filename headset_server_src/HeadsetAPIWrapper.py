@@ -24,12 +24,12 @@ class HeadsetAPIWrapper:
 		self.c.do_prepare_steps()  # This starts Cortex
 		self.selectedProfile = ""
 		self.stream = ['com']  # Receives mental command data by default
-		self.c.bind(new_com_data=self.on_new_data)
+		# self.c.bind(new_com_data=self.on_new_data)
 		self.selectedAction = ''
 		self.server_ip = "128.153.178.74"
 		self.server_port = 42071
 		# Create a server socket
-		self.server = SmartSocket(self.server_ip, self.server_port, SocketType.SERVER, debug=True)
+		# self.server = SmartSocket(self.server_ip, self.server_port, SocketType.SERVER, debug=True)
 
 # ---------------------- Debug Actions ----------------------
 
@@ -147,52 +147,38 @@ class HeadsetAPIWrapper:
 	# Top priority
 	# Subscribe to action stream
 	def startInferencing(self):
-		# self.c.subscribe(self.stream)
 		self.c.sub_request(self.stream)
 		return True, ""
 
 	# Top priority
 	# Unsubscribe to action stream
 	def stopInferencing(self):
-		self.c.subscribe(self.stream, True)
+		self.c.unsub_request(self.stream)
 		return False, ""
 
 	# Top priority
 	# Returns headset action, power, and time
 	def receiveInference(self):
-		stream_name = self.stream['streamName']
-		stream_labels = self.stream['cols']
-		print(stream_name, stream_labels)
-		# return self.c.extract_data_labels(stream_name, stream_labels)
-		return True, "", self.selectedAction, 0.5, 12
-
-	# This function emits the command detected by cortex
-	def on_new_data(self, *args, **kwargs):
-		data = kwargs.get('data')
-		self.oldAction = self.selectedAction
-		self.selectedAction = data['action']
-		print(self.selectedAction)
-		if self.oldAction != self.selectedAction:
-			self.server.sendMessage(self.selectedAction.encode())
+		return True, "Action, time, power: ", self.c.getCurrentInference()
 
 
 if __name__ == "__main__":
 
 	h = HeadsetAPIWrapper()
 
-	h.createProfile("HeadsetAPITest1")
-	print(h.listProfiles())
-
-	h.deleteProfile("HeadsetTest1")
-	print(h.listProfiles())
-
-	h.renameProfile("HeadsetAPITest1", "HeadsetTest1")
-	print(h.listProfiles())
-
-	h.selectProfile("HeadsetTest1")
-	print(h.getSelectedProfile())
-	h.deselectProfile()
-	print(h.getSelectedProfile())
+	# h.createProfile("HeadsetAPITest1")
+	# print(h.listProfiles())
+	#
+	# h.deleteProfile("HeadsetTest1")
+	# print(h.listProfiles())
+	#
+	# h.renameProfile("HeadsetAPITest1", "HeadsetTest1")
+	# print(h.listProfiles())
+	#
+	# h.selectProfile("HeadsetTest1")
+	# print(h.getSelectedProfile())
+	# h.deselectProfile()
+	# print(h.getSelectedProfile())
 
 	h.createProfile("ToTrain")
 	print(h.listProfiles())
@@ -200,13 +186,18 @@ if __name__ == "__main__":
 	h.selectProfile("ToTrain")
 	print(h.getSelectedProfile())
 
-	h.deselectProfile()
-	print(h.getSelectedProfile())
+	# print("before train is called")
+	# h.trainProfile('neutral', 'mentalCommand', 'start')
+	# print("after train called")
 
-	print("before train is called")
-	h.trainProfile('neutral', 'mentalCommand', 'start')
-	print("after train called")
-	h.receiveInference()
+	h.startInferencing()
 
+	try:
+		while True:
+			print(h.receiveInference())
+	except KeyboardInterrupt:
+		h.stopInferencing()
+
+	print("out of loop")
 
 
