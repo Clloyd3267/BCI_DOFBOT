@@ -6,6 +6,7 @@ import time
 import keyboard
 import sys
 from pydispatch import Dispatcher
+from threading import Thread
 #Implement websocket once HeadsetAPI
 
 # define request id
@@ -41,6 +42,8 @@ class Cortex(Dispatcher):
         self.debug = debug_mode
         self.first = True
         self.sid = None
+        self.currentInference = ""
+        self.streamThreadRunning = False
 
 
     def query_headset(self):
@@ -290,8 +293,6 @@ class Cortex(Dispatcher):
             result_dic = {'id': 6, 'jsonrpc': '2.0', 'result': {'failure': [], 'success': [
                 {'cols': ['act', 'pow'], 'sid': self.sid, 'streamName': 'com'}]}}
 
-        count = 0
-
         if self.debug:
             print(json.dumps(result_dic, indent=4))
 
@@ -311,6 +312,21 @@ class Cortex(Dispatcher):
                 if stream_name != 'com' and stream_name != 'fac':
                     self.extract_data_labels(stream_name, stream_labels)
 
+        # Allow the thread to run
+        self.streamThreadRunning = True
+
+        # Spawn a new thread to handle the stream message handling
+        self.streamingThread = Thread(target=self.getStreamEvent)
+        self.streamingThread.start()
+
+    def getCurrentInference(self):
+        if self.streamThreadRunning:
+            return self.inference['action'], self.inference['power'], self.inference['time']
+        else:
+            return None, None, None
+
+    def getStreamEvent(self):
+        count = 0
         # Handle data event
         while True:
             # try:new_dat
@@ -326,6 +342,7 @@ class Cortex(Dispatcher):
                 com_data['action'] = result_dic['com'][0]
                 com_data['power'] = result_dic['com'][1]
                 com_data['time'] = result_dic['time']
+                self.inference = com_data
                 self.emit('new_com_data', data=com_data)
             elif result_dic.get('fac') != None:
                 fe_data = {}
@@ -370,71 +387,41 @@ class Cortex(Dispatcher):
                 # print(new_data)
 
             if pressed == 1:
-                print('\nLive mode terminated ---------------------\n\n')
+                print('\nEvent Handler Stream Terminated ---------------------\n\n')
                 #add something here to clear the websocket
 
                 while count < 10000:
                     count = count + 1
-                return
 
-    def subscribe(self, stream, unsub=False):
+                self.streamThreadRunning = False
 
-        if unsub is True:
-            met = "unsubscribe"
-        else:
-            met = "subscribe"
-
-        sub_json = {
-            "id": 1,
+    def unsub_request(self, stream):
+        print('unsubscribe request --------------------------------')
+        unsub_request_json = {
             "jsonrpc": "2.0",
-            "method": met,
+            "method": "unsubscribe",
             "params": {
                 "cortexToken": self.auth,
                 "session": self.session_id,
                 "streams": stream
-            }
+            },
+            "id": SUB_REQUEST_ID
         }
 
-        self.ws.send(json.dumps(sub_json))
+        self.ws.send(json.dumps(unsub_request_json))
 
-        # handle subscribe response
+        # handle unsubscribe response
         new_data = self.ws.recv()
         result_dic = json.loads(new_data)
 
+        # CDL=> Find error status to check
+        # if CDL=>error:
+        #     print(json.dumps(result_dic, indent=4))
+
         print(json.dumps(result_dic, indent=4))
 
-        return
-
-    # def unsubscribe_request(self, stream):
-    #     print('Unsubscribe request --------------------------------')
-    #     sub_request_json = {
-    #         "jsonrpc": "2.0",
-    #         "method": "subscribe",
-    #         "params": {
-    #             "cortexToken": self.auth,
-    #             "session": self.session_id,
-    #             "streams": stream
-    #         },
-    #         "id": SUB_REQUEST_ID
-    #     }
-    #
-    #     self.ws.send(json.dumps(sub_request_json))
-    #
-    #     # handle subscribe response
-    #     new_data = self.ws.recv()
-    #     result_dic = json.loads(new_data)
-    #     count = 0
-    #
-    #     if self.debug:
-    #         print(json.dumps(result_dic, indent=4))
-    #
-    #     if 'sys' in stream:
-    #         # ignored sys data
-    #         return
-    #
-    #     if result_dic.get('error') != None:
-    #         print("subscribe get error: " + result_dic['error']['message'])
-    #         return
+        # Stop the streaming thread from running
+        self.streamThreadRunning = False
 
     def extract_data_labels(self, stream_name, stream_cols):
         data = {}
