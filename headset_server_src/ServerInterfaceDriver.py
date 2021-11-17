@@ -210,8 +210,49 @@ class ServerInterfaceDriver:
 
 			self.sendMessage(responseMessage)
 
-		# CDL=> GetDetectionInfoRequest
-		# CDL=> GetTrainedSignatureActionsRequest
+		elif genericMessage.Is(GetDetectionInfoRequest.DESCRIPTOR):  # GetDetectionInfoRequest
+			# Unpack specific message
+			requestMessage = GetDetectionInfoRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
+
+			# Handle request command
+			detection = requestMessage.detectionType
+
+			status, statusMessage, actionsList = self.headsetAPIWrapper.getDetectionInfo(detection)
+
+			# Package and send response message
+			responseMessage = GetDetectionInfoResponse()
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
+
+			# Add the action list to the response list
+			responseMessage.actions.extend(actionsList)
+
+			self.sendMessage(responseMessage)
+
+		elif genericMessage.Is(GetTrainedSignatureActionsRequest.DESCRIPTOR):  # GetTrainedSignatureActionsRequest
+			# Unpack specific message
+			requestMessage = GetTrainedSignatureActionsRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
+
+			# Handle request command
+			detection = requestMessage.detectionType
+
+			status, statusMessage, trainedActions, totalTimesTrained = self.headsetAPIWrapper.getTrainedSignatureActions(detection)
+
+			# Package and send response message
+			responseMessage = GetTrainedSignatureActionsResponse()
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
+
+			# Add the trained action list to the response list
+			responseMessage.totalTimesTrained = totalTimesTrained
+
+			# Add the trained actions
+			for action in trainedActions.keys():
+				trainedAction = responseMessage.TrainedActions.add()
+				trainedAction.action = action
+				trainedAction.timesTrained = trainedAction.get(action)
+
+			self.sendMessage(responseMessage)
 
 		elif genericMessage.Is(StartInferencingRequest.DESCRIPTOR):  # StartInferencingRequest
 			# Unpack specific message
