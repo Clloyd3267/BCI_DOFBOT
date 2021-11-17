@@ -513,8 +513,25 @@ class Cortex(Dispatcher):
             print('result \n', json.dumps(result_dic, indent=4))
             print('\n')
 
+    def getDetetctionInfo(self, detection):
+        detection_request_json = {
+            "jsonrpc": "2.0",
+            "method": "getDetectionInfo",
+            "params": {
+                "detection": detection,
+            },
+            "id": 1
+        }
+
+        self.ws.send(json.dumps(detection_request_json))
+
+        result = self.ws.recv()
+        result_dic = json.loads(result)
+
+        print('result \n', json.dumps(result_dic, indent=4))
+
     def train_request(self, detection, action, status):
-        # print('train request --------------------------------')
+        print('train request --------------------------------')
         train_request_json = {
             "jsonrpc": "2.0",
             "method": "training",
@@ -555,8 +572,11 @@ class Cortex(Dispatcher):
 
             if 'sys' in result_dic:
                 # success or complete, break the wait
+                print("sys in results dic")
                 if result_dic['sys'][1] == wanted_result:
                     break
+
+            return
 
     def create_record(self,
                       record_name,

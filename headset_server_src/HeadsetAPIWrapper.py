@@ -108,7 +108,6 @@ class HeadsetAPIWrapper:
 	# Trains a profile using the given status and action
 	def trainProfile(self, action, detection, status):
 
-		print("in training")
 		if detection != ('mentalCommand' or 'facialExpression'):
 			return False, "Detection must be set to 'mentalCommand' or 'facialExpression'"
 
@@ -128,15 +127,12 @@ class HeadsetAPIWrapper:
 		return True, "{} {} training request was successful".format(status, action)
 
 
-	# Very Low priority
-	def clearTrain(self):
-		# TODO
-		pass
+	#
 
 	# Get all available commands for detection type
 	def getDetectionInfo(self, detection):
-		#TODO
-		pass
+		actions = self.c.getDetetctionInfo(detection)
+		return True, actions
 
 	def getTrainedActions(self, detection):
 		#TODO
@@ -190,18 +186,24 @@ if __name__ == "__main__":
 	h.selectProfile("ToTrain")
 	print(h.getSelectedProfile())
 
-	# print("before train is called")
-	# h.trainProfile('neutral', 'mentalCommand', 'start')
-	# print("after train called")
+	h.getDetectionInfo('mentalCommand')
 
-	h.startInferencing()
+	print("before start train is called")
+	h.trainProfile('neutral', 'mentalCommand', 'start')
+	print("after start train called")
 
-	try:
-		while True:
-			print(h.receiveInference())
-	except KeyboardInterrupt:
-		h.stopInferencing()
+	print("before accept train is called")
+	h.trainProfile('neutral', 'mentalCommand', 'accept')
+	print("after accept train called")
 
-	print("out of loop")
+	# h.startInferencing()
+	#
+	# try:
+	# 	while True:
+	# 		print(h.receiveInference())
+	# except KeyboardInterrupt:
+	# 	h.stopInferencing()
+	#
+	# print("out of loop")
 
 
