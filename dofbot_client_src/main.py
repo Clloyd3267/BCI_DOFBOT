@@ -17,6 +17,14 @@ def keyboardPluggedIn():
 	return True
 
 
+# Connection information
+server_ip = "128.153.178.74" # CDL=> My IP (headset system)
+server_port = 42070
+
+# Create a client socket
+server = ClientInterfaceDriver(server_ip, server_port)
+
+myClient = SmartSocket(server_ip, 42071, SocketType.CLIENT)
 
 # oledDriver = Draw()
 
@@ -43,7 +51,7 @@ def main():
 			deselectProfile = server.deselectProfile()
 			selectProfile = server.selectProfile()
 			renameProfile = server.renameProfile()
-			getselectedProfile = server.getselectedProfile()
+			
 
 
 			print("--------Select or Create a Profile---------")
@@ -89,9 +97,14 @@ def main():
 			#oledDriver.printToOled(modeType.Profile_Select.name)
 		elif currentMode == modeType.Training_Mode:
 			print(modeType.Training_Mode.name)
+			trainProfile = server.trainProfile()
+			getSelectedProfile = server.getSelectedProfile()
+
 			#oledDriver.printToOled(modeType.Training_Mode.name)
 			currentMode = modeType.Live_Mode
 		elif currentMode == modeType.Live_Mode:
+			print("===================== Live Inferencing =====================")
+
 			# Start Live Mode
 			status, message = server.startInferencing()
 
@@ -119,6 +132,19 @@ def main():
 					else:
 						print("Invalid Inference")
 					prevAction = action
+			# except KeyboardInterrupt:
+			# 	print("Caught Keyboard interrupt")
+
+			# finally:
+			# 	print("Exiting!")
+			# 	# Stop Live Mode
+			# 	status, message = server.stopInferencing()
+
+			# 	print(message)
+
+			# 	server.serverSmartSocket.closeSocket()
+		
+
 		# print(modeType.Live_Mode.name)
 		# oledDriver.printToOled(modeType.Live_Mode.name)
 		#if previousMode != currentMode:
@@ -128,11 +154,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-	# Connection information
-	server_ip = "128.153.178.74" # CDL=> My IP (headset system)
-	server_port = 42070
-
-	# Create a client socket
-	server = ClientInterfaceDriver(server_ip, server_port)
-
-	myClient = SmartSocket(server_ip, 42071, SocketType.CLIENT)
