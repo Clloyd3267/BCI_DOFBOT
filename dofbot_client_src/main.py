@@ -39,7 +39,8 @@ def main():
 	currentMode = modeType.Initializing  # set default mode to Initialization
 	#oledDriver = Draw()
 	while True:
-		
+		getSelectedProfile = server.getSelectedProfile()
+
 		if currentMode == modeType.Initializing:
 			print(modeType.Initializing.name)      # print name of enumeration
 			#oledDriver.printToOled(modeType.Initializing.name)
@@ -84,7 +85,7 @@ def main():
 					print("Going to Training Mode")
 					currentMode = modeType.Training_Mode
 				elif userInput3 == 'Rename':
-					userInput4 = input(renameProfile)#PLEASE CHECK THIS
+					userInput4 = input()#PLEASE CHECK THIS
 					
 				elif userInput3 == 'Delete':
 					server.deleteProfile()
@@ -98,7 +99,7 @@ def main():
 		elif currentMode == modeType.Training_Mode:
 			print(modeType.Training_Mode.name)
 			trainProfile = server.trainProfile()
-			getSelectedProfile = server.getSelectedProfile()
+			
 
 			#oledDriver.printToOled(modeType.Training_Mode.name)
 			currentMode = modeType.Live_Mode
