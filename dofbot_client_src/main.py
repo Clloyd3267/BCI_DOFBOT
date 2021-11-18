@@ -26,13 +26,6 @@ server = ClientInterfaceDriver(server_ip, server_port)
 
 myClient = SmartSocket(server_ip, 42071, SocketType.CLIENT)
 
-# oledDriver = Draw()
-
-# Draw.printToOled()
-
-
-# oledDriver = Draw()
-
 
 def main():
 	previousMode = None
@@ -56,7 +49,7 @@ def main():
 
 
 			print("--------Select or Create a Profile---------")
-			userInput = input("Type Select or Create")
+			userInput = input("Type select or create").lower()
 
 			if userInput == 'select':
 				print("Current Profile List:")
@@ -64,36 +57,52 @@ def main():
 				for index, value in enumerate(profileList):
 					print ("{} | {}".format(index, value))
 
-					userInput2 = input("Input the index of the profile to select: ")
+					userInput = input("Input the index of the profile to select: ").lower()
 
-				if userInput2.isnumeric() and 0 <= int(userInput2) < len(profileList):
-					profileName = profileList[int(userInput2)]
-					if server.selectProfile(profileName):
-						print("\nUser {} selected!\n".format(profileName))
+				if userInput.isnumeric() and 0 <= int(userInput) < len(profileList):
+					profileName = profileList[int(userInput)]
+					print("Profile {} selected".format(profileName))
+					if keyboardPluggedIn():
+						userInput = input("What would you like to do with the profile? Type Load, Delete, Rename, or Train: ").lower()
 					else:
-						print("\nUser {} could not be selected. Please try again!\n".format(profileName))
+						userInput = input("What would you like to do with the profile? Type Load, Delete, or Train: ").lower()
+					if userInput == 'Load':
+						print("Going to Live mode")
+						server.selectProfile(profileName)
+						currentMode = modeType.Live_Mode
+					elif userInput == 'Train':
+						print("Going to Training Mode")
+						server.selectProfile(profileName)
+						currentMode = modeType.Training_Mode
+					elif keyboardPluggedIn() and userInput == 'Rename':
+						userInput = input("Enter a new profile name: ")
+						server.renameProfile(profileName, userInput)
+						print("Profile {} renamed to {}".format(profileName, userInput))	
+					elif userInput == 'Delete':
+						userInput = input("Are you sure you want to delete?").lower()
+						if userInput == 'yes':
+							server.deleteProfile(profileName)
+						else:
+							print("Canceling delete operation for {}".format(profileName))
+					else:
+						print("\nInvalid Input. Please try again!\n")
 				else:
 					print("\nInvalid Input. Please try again!\n")
 
-				print("What would you like to do with the profile? (Type Load, Delete, Rename, or Train")
-				userInput3 = input()
-
-				if userInput3 == 'Load':
-					print("Going to Live mode")
-					currentMode = modeType.Live_Mode
-				elif userInput3 == 'Train':
-					print("Going to Training Mode")
-					currentMode = modeType.Training_Mode
-				elif userInput3 == 'Rename':
-					userInput4 = input()
-					
-				elif userInput3 == 'Delete':
-					server.deleteProfile()
-
 			elif userInput == 'create':
-				
-				print('Name Profile')
-
+				newProfileName = ""
+				if keyboardPluggedIn(): 
+					newProfileName = input("Enter a new profile name: ")
+				else:
+					i = 0
+					while True:
+						newProfileName = "New Profile {}".format(i)
+						if newProfileName not in profileList:
+							break
+						else:
+							i += 1
+				server.createProfile(newProfileName)
+				print("Profile {} created".format(newProfileName))
 
 			#oledDriver.printToOled(modeType.Profile_Select.name)
 		elif currentMode == modeType.Training_Mode:
