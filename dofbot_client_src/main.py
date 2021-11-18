@@ -85,7 +85,7 @@ def main():
 					print("Going to Training Mode")
 					currentMode = modeType.Training_Mode
 				elif userInput3 == 'Rename':
-					userInput4 = input()#PLEASE CHECK THIS
+					userInput4 = input()
 					
 				elif userInput3 == 'Delete':
 					server.deleteProfile()
