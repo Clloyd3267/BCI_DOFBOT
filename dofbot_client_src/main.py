@@ -48,30 +48,34 @@ def main():
 				for index, value in enumerate(profileList):
 					print ("{} | {}".format(index, value))
 
-					userInput = input("Input the index of the profile to select: ").lower()
+				userInput = input("Input the index of the profile to select: ").lower()
 
 				if userInput.isnumeric() and 0 <= int(userInput) < len(profileList):
 					profileName = profileList[int(userInput)]
 					print("Profile {} selected".format(profileName))
+					message = ""
 					if keyboardPluggedIn():
-						userInput = input("What would you like to do with the profile? Type Load, Delete, Rename, or Train: ").lower()
+						message = "What would you like to do with the profile? Type Load, Delete, Rename, or Train: "
 					else:
-						userInput = input("What would you like to do with the profile? Type Load, Delete, or Train: ").lower()
-					if userInput == 'Load':
+						message = "What would you like to do with the profile? Type Load, Delete, or Train: "
+
+					userInput = input(message).lower()
+
+					if userInput == "load":
 						print("Going to Live mode")
 						headsetAPIWrapper.selectProfile(profileName)
 						currentMode = modeType.Live_Mode
-					elif userInput == 'Train':
+					elif userInput == "train":
 						print("Going to Training Mode")
 						headsetAPIWrapper.selectProfile(profileName)
 						currentMode = modeType.Training_Mode
-					elif keyboardPluggedIn() and userInput == 'Rename':
+					elif keyboardPluggedIn() and userInput == "rename":
 						userInput = input("Enter a new profile name: ")
 						headsetAPIWrapper.renameProfile(profileName, userInput)
 						print("Profile {} renamed to {}".format(profileName, userInput))	
-					elif userInput == 'Delete':
+					elif userInput == "delete":
 						userInput = input("Are you sure you want to delete?").lower()
-						if userInput == 'yes':
+						if userInput == "yes":
 							headsetAPIWrapper.deleteProfile(profileName)
 						else:
 							print("Canceling delete operation for {}".format(profileName))
@@ -105,6 +109,7 @@ def main():
 			currentMode = modeType.Live_Mode
 		elif currentMode == modeType.Live_Mode:
 			print("===================== Live Inferencing =====================")
+			break
 
 			# # Start Live Mode
 			# status, message = headsetAPIWrapper.startInferencing()
