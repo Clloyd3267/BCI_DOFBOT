@@ -108,7 +108,8 @@ def main():
 				print("Deleting training data")
 				headsetAPIWrapper.clearAll()
 			if keyboardPluggedIn() and userInput == 'trainact':
-				print("Training Profile")
+				userInput = input("Please select a specifc action to train: ")
+				print("Training Action")
 				headsetAPIWrapper.trainProfile(profileName)
 			if keyboardPluggedIn() and userInput == 'exit':
 				print("Going to live mode")
