@@ -102,11 +102,21 @@ def main():
 			#oledDriver.printToOled(modeType.Profile_Select.name)
 		elif currentMode == modeType.Training_Mode:
 			print(modeType.Training_Mode.name)
+
+			userInput = input("Type clear to clear an all training, trainact to train an action or exit to leave and go live mode").lower()
+			if keyboardPluggedIn() and userInput == 'clear':
+				print("Deleting training data")
+				headsetAPIWrapper.clearAll()
+			if keyboardPluggedIn() and userInput == 'trainact':
+				print("Training Profile")
+				headsetAPIWrapper.trainProfile(profileName)
+			if keyboardPluggedIn() and userInput == 'exit':
+				print("Going to live mode")
+				currentMode = modeType.Live_Mode
 			#trainProfile = headsetAPIWrapper.trainProfile()
-			
 
 			#oledDriver.printToOled(modeType.Training_Mode.name)
-			currentMode = modeType.Live_Mode
+			
 		elif currentMode == modeType.Live_Mode:
 			print("===================== Live Inferencing =====================")
 			break
