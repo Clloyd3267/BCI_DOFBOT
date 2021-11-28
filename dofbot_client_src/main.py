@@ -109,6 +109,8 @@ def main():
 				headsetAPIWrapper.clearAll()
 			if keyboardPluggedIn() and userInput == 'trainact':
 				userInput = input("Please select a specifc action to train: ")
+				#call list
+				headsetAPIWrapper.trainProfile()
 				print("Training Action")
 				headsetAPIWrapper.trainProfile(profileName)
 			if keyboardPluggedIn() and userInput == 'exit':
