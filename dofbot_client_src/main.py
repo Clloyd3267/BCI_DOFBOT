@@ -44,7 +44,7 @@ def main():
 			userInput = input("Type select or create: ").lower()
 
 			if userInput == 'select':
-				print("Current Profile List:")
+				promptUserList ("Current Profile List:")
 				print("Index | Profile Name")
 				for index, value in enumerate(profileList):
 					print ("{} | {}".format(index, value))
