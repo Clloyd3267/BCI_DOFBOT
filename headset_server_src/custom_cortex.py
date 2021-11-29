@@ -29,6 +29,7 @@ MENTAL_COMMAND_ACTIVE_ACTION_ID = 16
 MENTAL_COMMAND_BRAIN_MAP_ID = 17
 MENTAL_COMMAND_TRAINING_THRESHOLD = 18
 SET_MENTAL_COMMAND_ACTIVE_ACTION_ID = 19
+GET_TRAINED_SIGNATURE_ACTIONS_ID = 20
 
 
 
@@ -828,6 +829,28 @@ class Cortex(Dispatcher):
         }
 
         self.ws.send(json.dumps(training_threshold_request))
+        result = self.ws.recv()
+        result_dic = json.loads(result)
+
+        if self.debug:
+            print(json.dumps(result_dic, indent=4))
+
+        return result_dic
+
+    def get_trained_signature_action(self, detection, profile_name):
+        print('get trained commands ------------------')
+        brain_map_request = {
+            "id": GET_TRAINED_SIGNATURE_ACTIONS_ID,
+            "jsonrpc": "2.0",
+            "method": "getTrainedSignatureActions",
+            "params": {
+                "cortexToken": self.auth,
+                "detection": detection,
+                "profile": profile_name
+            }
+        }
+
+        self.ws.send(json.dumps(brain_map_request))
         result = self.ws.recv()
         result_dic = json.loads(result)
 

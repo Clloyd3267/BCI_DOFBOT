@@ -136,17 +136,15 @@ class HeadsetAPIWrapper:
 
 		return True, "{} {} training request was successful".format(status, action)
 
-
-	#
-
 	# Get all available commands for detection type
 	def getDetectionInfo(self, detection):
 		actions = self.c.getDetetctionInfo(detection)
 		return True, actions
 
+	# Get the trained actions along with how many times they were trained
 	def getTrainedActions(self, detection):
-		#TODO
-		pass
+		# return self.c.get_mental_command_brain_map(self.selectedProfile)
+		return self.c.get_trained_signature_action(detection, self.selectedProfile)
 
 # ---------------------- Inferencing Actions ----------------------
 
@@ -190,21 +188,19 @@ if __name__ == "__main__":
 	# h.deselectProfile()
 	# print(h.getSelectedProfile())
 
-	h.createProfile("ToTrain")
-	print(h.listProfiles())
+	# h.createProfile("ToTrain")
+	# print(h.listProfiles())
+	#
+	# h.selectProfile("ToTrain")
+	# print(h.getSelectedProfile())
+	#
+	# h.getDetectionInfo('mentalCommand')
+	#
+	# h.trainProfile('neutral', 'mentalCommand', 'start')
+	# h.trainProfile('neutral', 'mentalCommand', 'accept')
 
-	h.selectProfile("ToTrain")
-	print(h.getSelectedProfile())
-
-	h.getDetectionInfo('mentalCommand')
-
-	print("before start train is called")
-	h.trainProfile('neutral', 'mentalCommand', 'start')
-	print("after start train called")
-
-	print("before accept train is called")
-	h.trainProfile('neutral', 'mentalCommand', 'accept')
-	print("after accept train called")
+	h.selectProfile("Inter_Test_2")
+	print(h.getTrainedActions('mentalCommand'))
 
 	# h.startInferencing()
 	#
