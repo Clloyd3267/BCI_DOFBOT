@@ -122,6 +122,7 @@ def main():
 			
 		elif currentMode == modeType.Live_Mode:
 			print("===================== Live Inferencing =====================")
+			print("")
 			break
 
 			# # Start Live Mode
