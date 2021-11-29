@@ -44,16 +44,17 @@ def main():
 			userInput = input("Type select or create: ").lower()
 
 			if userInput == 'select':
-				promptUserList ("Current Profile List:")
-				print("Index | Profile Name")
-				for index, value in enumerate(profileList):
-					print ("{} | {}".format(index, value))
+				profileName = promptUserList ("Current Profile List:", profileList)
+				if profileName:	 
+				# print("Index | Profile Name")
+				# for index, value in enumerate(profileList):
+				# 	print ("{} | {}".format(index, value))
 
-				userInput = input("Input the index of the profile to select: ").lower()
+				# userInput = input("Input the index of the profile to select: ").lower()
 
-				if userInput.isnumeric() and 0 <= int(userInput) < len(profileList):
-					profileName = profileList[int(userInput)]
-					print("Profile {} selected".format(profileName))
+				# if userInput.isnumeric() and 0 <= int(userInput) < len(profileList):
+				# 	profileName = profileList[int(userInput)]
+				# 	print("Profile {} selected".format(profileName))
 					message = ""
 					if keyboardPluggedIn():
 						message = "What would you like to do with the profile? Type Load, Delete, Rename, or Train: "
