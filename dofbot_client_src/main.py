@@ -2,6 +2,7 @@ import enum
 import time
 #from ClientInterfaceDriver import *
 from HeadsetAPIWrapperTest import *
+from UserIOInteraction import *
 
 #from oledDriver import *
 
