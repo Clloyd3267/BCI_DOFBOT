@@ -421,6 +421,7 @@ class Cortex(Dispatcher):
             if result_dic.get("id") == SUB_REQUEST_ID:
                 break
 
+        self.first = True
         # CDL=> Find error status to check
         # if CDL=>error:
         #     print(json.dumps(result_dic, indent=4))
@@ -562,11 +563,11 @@ class Cortex(Dispatcher):
         if status == 'accept':
             wanted_result = accept_wanted_result
 
+
         # wait until success
         while True:
             result = self.ws.recv()
             result_dic = json.loads(result)
-            print(result_dic)
 
             print(json.dumps(result_dic, indent=4))
 
@@ -575,8 +576,6 @@ class Cortex(Dispatcher):
                 print("sys in results dic")
                 if result_dic['sys'][1] == wanted_result:
                     break
-
-            return
 
     def create_record(self,
                       record_name,

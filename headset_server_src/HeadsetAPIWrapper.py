@@ -20,7 +20,7 @@ user = {
 
 class HeadsetAPIWrapper:
 	def __init__(self):
-		self.c = Cortex(user)
+		self.c = Cortex(user, True)
 		self.c.do_prepare_steps()  # This starts Cortex
 		self.selectedProfile = ""
 		self.stream = ['com']  # Receives mental command data by default
@@ -28,6 +28,7 @@ class HeadsetAPIWrapper:
 		self.selectedAction = ''
 		self.server_ip = "128.153.178.74"
 		self.server_port = 42071
+		self.status_list = ['start', 'accept', 'reject', 'reset', 'erase']
 		# Create a server socket
 		# self.server = SmartSocket(self.server_ip, self.server_port, SocketType.SERVER, debug=True)
 
@@ -79,6 +80,7 @@ class HeadsetAPIWrapper:
 		if profileName not in self.c.query_profile():
 			return False, "Profile {} not in profile list!".format(profileName)
 		else:
+			self.c.sub_request(['sys'])
 			self.selectedProfile = profileName
 			status = 'load'
 			self.c.setup_profile(profileName, status)
@@ -108,6 +110,7 @@ class HeadsetAPIWrapper:
 	# Trains a profile using the given status and action
 	def trainProfile(self, action, detection, status):
 
+		print("Train function entered")
 		if detection != ('mentalCommand' or 'facialExpression'):
 			return False, "Detection must be set to 'mentalCommand' or 'facialExpression'"
 
@@ -116,13 +119,20 @@ class HeadsetAPIWrapper:
 		else:
 			self.stream = 'fac'
 
-		# Make ure valid status is used
-		if status != ('start' or 'accept' or 'reject' or 'reset' or 'erase'):
+		print(self.stream)
+
+		# Make sure valid status is used
+		if status not in self.status_list:
+			print("incorrect status")
 			return False, "Status input must be 'start' or 'accept' or 'reject' or 'reset' or 'erase'"
+
+		# self.c.sub_request(['sys'])
 
 		print('{} training -----------------------------------'.format(status))
 
-		self.c.train_request(detection, action, status)
+		print(detection, action, status)
+
+		self.c.train_request(detection=detection, action=action, status=status)
 
 		return True, "{} {} training request was successful".format(status, action)
 
