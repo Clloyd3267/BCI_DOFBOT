@@ -2,14 +2,15 @@ import RPi.GPIO as GPIO
 import signal
 import sys
 
-GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
 
-BTN_A_PIN=4
-BTN_B_PIN=17
-BTN_C_PIN=27
-BTN_D_PIN=22
-BTN_E_PIN=5
-BTN_F_PIN=6 
+BTN_A_PIN=40
+BTN_B_PIN=11
+BTN_C_PIN=13
+BTN_D_PIN=15
+BTN_E_PIN=29
+BTN_F_PIN=31
 
 GPIO.setup(BTN_A_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(BTN_B_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -47,7 +48,7 @@ def Poll_F(): #holds thread until button F is pushed
         return True
 
 def interruption(pin):
-	return True
+	print("interrupted at " + str(pin))
 
 def interrupt_A(): #will return true once A is pushed
 	GPIO.add_event_detect(BTN_A_PIN, GPIO.FALLING, callback = interruption, bouncetime=100)
