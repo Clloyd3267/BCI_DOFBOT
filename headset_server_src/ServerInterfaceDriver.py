@@ -76,6 +76,23 @@ class ServerInterfaceDriver:
 	def getEnumStatus(self, booleanStatus):
 		return Status.SUCCESS if booleanStatus else Status.FAILURE
 
+	def getDetectionString(self, detection):
+		return "mentalCommand" if detection == Detection.MENTAL_COMMAND else "facialCommand"
+
+	def getTrainingStatusString(self, trainingStatus):
+		if   trainingStatus == TrainingStatus.START:
+			return "start"
+		elif trainingStatus == TrainingStatus.ACCEPT:
+			return "accept"
+		elif trainingStatus == TrainingStatus.REJECT:
+			return "reject"
+		elif trainingStatus == TrainingStatus.RESET:
+			return "reset"
+		elif trainingStatus == TrainingStatus.ERASE:
+			return "erase"
+		else:
+			return "none"
+
 	def handleMessage(self, messageByteString):
 		# Create a new generic protobuf message
 		genericMessage = Any()
@@ -199,8 +216,8 @@ class ServerInterfaceDriver:
 
 			# Handle request command
 			action = requestMessage.action
-			detection = requestMessage.detectionType
-			status = requestMessage.trainingStatus
+			detection = self.getDetectionString(requestMessage.detectionType)
+			status = self.getTrainingStatusString(requestMessage.trainingStatus)
 
 			status, statusMessage = self.headsetAPIWrapper.trainProfile(action, detection, status)
 
@@ -216,7 +233,7 @@ class ServerInterfaceDriver:
 			self.unpackRequestMessage(requestMessage, genericMessage)
 
 			# Handle request command
-			detection = requestMessage.detectionType
+			detection = self.getDetectionString(requestMessage.detectionType)
 
 			status, statusMessage, actionsList = self.headsetAPIWrapper.getDetectionInfo(detection)
 
@@ -268,7 +285,7 @@ class ServerInterfaceDriver:
 
 			self.sendMessage(responseMessage)
 
-		elif genericMessage.Is(StopInferencingRequest.DESCRIPTOR):  # StartInferencingRequest
+		elif genericMessage.Is(StopInferencingRequest.DESCRIPTOR):  # StopInferencingRequest
 			# Unpack specific message
 			requestMessage = StopInferencingRequest()
 			self.unpackRequestMessage(requestMessage, genericMessage)
