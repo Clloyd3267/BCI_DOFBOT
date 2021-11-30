@@ -4,8 +4,6 @@ import time
 from HeadsetAPIWrapperTest import *
 from UserIOInteraction import *
 
-#from oledDriver import *
-
 
 class modeType(enum.Enum):  # creating enumerations with class
 	Initializing = 1
@@ -31,11 +29,9 @@ def main():
 	previousMode = None
 	currentMode = modeType.Initializing  # set default mode to Initialization
 	headsetAPIWrapper = HeadsetAPIWrapper()
-	#oledDriver = Draw()
 	while True:
 		if currentMode == modeType.Initializing:
 			print(modeType.Initializing.name)      # print name of enumeration
-			#oledDriver.printToOled(modeType.Initializing.name)
 			currentMode = modeType.Profile_Select
 		elif currentMode == modeType.Profile_Select:
 			profileList = headsetAPIWrapper.listProfiles()
@@ -92,7 +88,6 @@ def main():
 				headsetAPIWrapper.createProfile(newProfileName)
 				print("Profile {} created".format(newProfileName))
 
-			#oledDriver.printToOled(modeType.Profile_Select.name)
 		elif currentMode == modeType.Training_Mode:
 			print(modeType.Training_Mode.name)
 
@@ -102,8 +97,6 @@ def main():
 				headsetAPIWrapper.clearAll()
 			if keyboardPluggedIn() and userInput == "trainact":
 				while True:
-					#userInput = input("Please select a specifc action to train: ")
-					#call list
 					actionList = headsetAPIWrapper.getSigTrainedAct().keys()
 					action = promptUserList("Action List: ", actionList)
 					trainDelete = promptUserList("Do you want to train or delete training for the action?", ["train", "delete"])
@@ -119,8 +112,7 @@ def main():
 						acceptReset = promptUserList("Training Complete! Do you want to accept or reject the training? ", ["accept", "reject"])
 						if acceptReset == "accept":
 							headsetAPIWrapper.trainProfile(action, "mentalCommand", "accept")
-							# Check if done or train again
-							doneNotDone = promptUserList("Are you done or do you want to train again? Type done or continue. ", ["done", "continue"])
+							doneNotDone = promptUserList("Are you done or do you want to train again? Type done or continue. ", ["done", "continue"])		# Check if done or train again
 							if doneNotDone == "done": 					#if done, break, else contiue
 								break
 							
@@ -128,16 +120,11 @@ def main():
 								headsetAPIWrapper.trainProfile(action, "mentalCommand", "reset")
 								printMessage("Training rejected")
 								break
-					
-				# headsetAPIWrapper.trainProfile()
-				# print("Training Action")
-				# headsetAPIWrapper.trainProfile(profileName)
+
 			if keyboardPluggedIn() and userInput == "exit":
 				print("Going to live mode")
 				currentMode = modeType.Live_Mode
 			#trainProfile = headsetAPIWrapper.trainProfile()
-
-			#oledDriver.printToOled(modeType.Training_Mode.name)
 			
 		elif currentMode == modeType.Live_Mode:
 			print("===================== Live Inferencing =====================")
