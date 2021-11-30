@@ -101,10 +101,11 @@ def main():
 				print("Deleting training data")
 				headsetAPIWrapper.clearAll()
 			if keyboardPluggedIn() and userInput == 'trainact':
-				userInput = input("Please select a specifc action to train: ")
+				#userInput = input("Please select a specifc action to train: ")
 				#call list
-				headsetAPIWrapper.getSigTrainedAct()
-
+				actionList = headsetAPIWrapper.getSigTrainedAct().keys()
+				promptUserList("Action List: ", actionList)
+				
 				headsetAPIWrapper.trainProfile()
 				print("Training Action")
 				headsetAPIWrapper.trainProfile(profileName)
