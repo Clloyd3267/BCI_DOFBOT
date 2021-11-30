@@ -43,7 +43,7 @@ def main():
 			print("--------Select or Create a Profile---------")
 			userInput = input("Type select or create: ").lower()
 
-			if userInput == 'select':
+			if userInput == "select":
 				profileName = promptUserList("Current Profile List:", profileList)
 				if profileName:	 
 					message = ""
@@ -77,7 +77,7 @@ def main():
 				else:
 					print("\nInvalid Input. Please try again!\n")
 
-			elif userInput == 'create':
+			elif userInput == "create":
 				newProfileName = ""
 				if keyboardPluggedIn(): 
 					newProfileName = input("Enter a new profile name: ")
@@ -97,19 +97,44 @@ def main():
 			print(modeType.Training_Mode.name)
 
 			userInput = input("Type clear to clear an all training, trainact to train an action or exit to leave and go live mode").lower()
-			if keyboardPluggedIn() and userInput == 'clear':
+			if keyboardPluggedIn() and userInput == "clear":
 				print("Deleting training data")
 				headsetAPIWrapper.clearAll()
-			if keyboardPluggedIn() and userInput == 'trainact':
-				#userInput = input("Please select a specifc action to train: ")
-				#call list
-				actionList = headsetAPIWrapper.getSigTrainedAct().keys()
-				promptUserList("Action List: ", actionList)
-				
+			if keyboardPluggedIn() and userInput == "trainact":
+				while True:
+					#userInput = input("Please select a specifc action to train: ")
+					#call list
+					actionList = headsetAPIWrapper.getSigTrainedAct().keys()
+					action = promptUserList("Action List: ", actionList)
+					trainDelete = promptUserList("Do you want to train or delete training for the action?", ["train", "delete"])
+					if trainDelete == "delete":
+						headsetAPIWrapper.trainProfile(action, "mentalCommand", "erase")
+					elif trainDelete == "train":
+						printMessage("Please think about or move with selected action")
+						printMessage("Press button when ready")
+						#insert button push
+
+						headsetAPIWrapper.trainProfile(action, "mentalCommand", "start")
+						#training running
+						acceptReset = promptUserList("Training Complete! Do you want to accept or reject the training? ", ["accept", "reject"])
+						if acceptReset == "accept":
+							headsetAPIWrapper.trainProfile(action, "mentalCommand", "accept")
+							# Check if done or train again
+							doneNotDone = promptUserList("Are you done or do you want to train again? Type done or continue. ", ["done", "continue"])
+							if doneNotDone == "done": 					#if done, break, else contiue
+								break
+							
+							elif acceptReset == "reject":
+								headsetAPIWrapper.trainProfile(action, "mentalCommand", "reset")
+								printMessage("Training rejected")
+								break
+							
+
+					
 				headsetAPIWrapper.trainProfile()
 				print("Training Action")
 				headsetAPIWrapper.trainProfile(profileName)
-			if keyboardPluggedIn() and userInput == 'exit':
+			if keyboardPluggedIn() and userInput == "exit":
 				print("Going to live mode")
 				currentMode = modeType.Live_Mode
 			#trainProfile = headsetAPIWrapper.trainProfile()
@@ -168,5 +193,5 @@ def main():
 		#previousMode = currentMode
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 	main()

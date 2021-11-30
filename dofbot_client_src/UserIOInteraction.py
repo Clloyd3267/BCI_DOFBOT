@@ -24,3 +24,4 @@ def promptUserList(message, list):
 		return list[int(userInput)]
 	else:
 		return None
+
