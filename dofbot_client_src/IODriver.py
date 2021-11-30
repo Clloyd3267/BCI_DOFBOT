@@ -43,7 +43,7 @@ def Poll_F(): #holds thread until button F is pushed
 
 def interruption(pin):
         print("interrupted at " + str(pin))
-
+	return pin
 def interrupt_A(): #will return true once A is pushed
 	GPIO.add_event_detect(BTN_A_PIN, GPIO.FALLING, callback = interruption, bouncetime=100)
 
