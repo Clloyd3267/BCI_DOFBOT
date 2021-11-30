@@ -857,7 +857,13 @@ class Cortex(Dispatcher):
         if self.debug:
             print(json.dumps(result_dic, indent=4))
 
-        return result_dic
+        action_list = result_dic.get('result').get('trainedActions')
+        trained_dic = {}
+
+        for i in range(len(action_list)):
+            trained_dic[action_list[i].get('action')] = action_list[i].get('times')
+
+        return trained_dic
 
 # -------------------------------------------------------------------
 # -------------------------------------------------------------------

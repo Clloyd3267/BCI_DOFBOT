@@ -18,6 +18,8 @@ user = {
    "debit": 100
 }
 
+# Headset Wrapper
+
 class HeadsetAPIWrapper:
 	def __init__(self):
 		self.c = Cortex(user, True)
@@ -123,7 +125,6 @@ class HeadsetAPIWrapper:
 
 		# Make sure valid status is used
 		if status not in self.status_list:
-			print("incorrect status")
 			return False, "Status input must be 'start' or 'accept' or 'reject' or 'reset' or 'erase'"
 
 		# self.c.sub_request(['sys'])
@@ -199,7 +200,7 @@ if __name__ == "__main__":
 	# h.trainProfile('neutral', 'mentalCommand', 'start')
 	# h.trainProfile('neutral', 'mentalCommand', 'accept')
 
-	h.selectProfile("Inter_Test_2")
+	h.selectProfile("Josiah")
 	print(h.getTrainedActions('mentalCommand'))
 
 	# h.startInferencing()
