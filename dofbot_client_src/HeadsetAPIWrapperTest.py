@@ -79,3 +79,6 @@ class HeadsetAPIWrapper:
 
 	def getDetectionInfo(self):
 		return["string1", "string2", "string3"]
+
+	def getSigTrainedAct(self):
+		return {"Action1": 3, "Action2": 5, "Action5": 69420}

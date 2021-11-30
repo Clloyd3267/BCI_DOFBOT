@@ -44,17 +44,8 @@ def main():
 			userInput = input("Type select or create: ").lower()
 
 			if userInput == 'select':
-				profileName = promptUserList ("Current Profile List:", profileList)
+				profileName = promptUserList("Current Profile List:", profileList)
 				if profileName:	 
-				# print("Index | Profile Name")
-				# for index, value in enumerate(profileList):
-				# 	print ("{} | {}".format(index, value))
-
-				# userInput = input("Input the index of the profile to select: ").lower()
-
-				# if userInput.isnumeric() and 0 <= int(userInput) < len(profileList):
-				# 	profileName = profileList[int(userInput)]
-				# 	print("Profile {} selected".format(profileName))
 					message = ""
 					if keyboardPluggedIn():
 						message = "What would you like to do with the profile? Type Load, Delete, Rename, or Train: "
@@ -112,6 +103,8 @@ def main():
 			if keyboardPluggedIn() and userInput == 'trainact':
 				userInput = input("Please select a specifc action to train: ")
 				#call list
+				headsetAPIWrapper.getSigTrainedAct()
+
 				headsetAPIWrapper.trainProfile()
 				print("Training Action")
 				headsetAPIWrapper.trainProfile(profileName)
