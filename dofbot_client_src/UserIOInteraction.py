@@ -6,6 +6,7 @@
 # ------------------------------------------------------------------------------
 
 #Imports
+print("Hello")
 
 def printMessage(message):
     print(message)

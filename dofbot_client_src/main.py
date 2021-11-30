@@ -133,7 +133,7 @@ def main():
 			# print(message)
 			# prevAction = ""
 			# while True:
-			# 	message = myClient.receiveMessage()
+			# 	message = headsetAPIWrapper.receiveInference()
 			# 	if not message:
 			# 		continue
 			# 	else:

@@ -77,5 +77,5 @@ class HeadsetAPIWrapper:
 		action = input("Enter an action: ")
 		return status, message, action, power, time
 
-	def getDectectioniInfo(self):
-		return[]
+	def getDetectionInfo(self):
+		return["string1", "string2", "string3"]
