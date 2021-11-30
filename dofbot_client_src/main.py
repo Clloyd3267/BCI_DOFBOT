@@ -97,7 +97,7 @@ def main():
 				headsetAPIWrapper.clearAll()
 			if keyboardPluggedIn() and userInput == "trainact":
 				while True:
-					actionList = headsetAPIWrapper.getSigTrainedAct().keys()
+					actionList = list(headsetAPIWrapper.getSigTrainedAct().keys())
 					action = promptUserList("Action List: ", actionList)
 					trainDelete = promptUserList("Do you want to train or delete training for the action?", ["train", "delete"])
 					if trainDelete == "delete":

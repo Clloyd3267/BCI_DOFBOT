@@ -12,16 +12,16 @@ def printMessage(message):
     print(message)
 def promptUserInput(message):
     return input(message)
-def promptUserList(message, list):
+def promptUserList(message, inputList):
 	print(message)
 	print("Index | Value")
-	for index, value in enumerate(list):
+	for index, value in enumerate(inputList):
 		print ("{} | {}".format(index, value))
 
 	userInput = input("Input the index of the value to select: ").lower()
 
-	if userInput.isnumeric() and 0 <= int(userInput) < len(list): #cdl
-		return list[int(userInput)]
+	if userInput.isnumeric() and 0 <= int(userInput) < len(inputList): #cdl
+		return inputList[int(userInput)]
 	else:
 		return None
 
