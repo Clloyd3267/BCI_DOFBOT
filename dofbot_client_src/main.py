@@ -24,9 +24,9 @@ def isPressed(button):
 
 rstButton = False
 ProfileSltButton = False
+	
 
-
-def main():
+if __name__ == "__main__":
 	previousMode = None
 	currentMode = modeType.Initializing  # set default mode to Initialization
 	headsetAPIWrapper = HeadsetAPIWrapper()
@@ -134,7 +134,7 @@ def main():
 			headsetAPIWrapper.startInferencing()
 
 			while True:
-				status, message, action, power, time = headsetAPIWrapper.receiveInference()
+				status, message, action, power, rtime = headsetAPIWrapper.receiveInference()
 				if isPressed(rstButton):
 					headsetAPIWrapper.stopInferencing()
 					currentMode = modeType.Initializing
@@ -163,6 +163,3 @@ def main():
 
 				# Stop Live Mode
 				status, message = headsetAPIWrapper.stopInferencing()
-
-if __name__ == "__main__":
-	main()
