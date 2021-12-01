@@ -15,14 +15,15 @@ def keyboardPluggedIn():
 	return True
 
 
-# # Connection information
-# server_ip = "128.153.178.74" # CDL=> My IP (headset system)
-# server_port = 42070
+def isPressed(button):
+	if button:
+		button = False
+		return True
+	else:
+		return False
 
-# # Create a client socket
-# server = ClientInterfaceDriver(server_ip, server_port)
-
-# myClient = SmartSocket(server_ip, 42071, SocketType.CLIENT)
+rstButton = False
+ProfileSltButton = False
 
 
 def main():
@@ -127,56 +128,41 @@ def main():
 			#trainProfile = headsetAPIWrapper.trainProfile()
 			
 		elif currentMode == modeType.Live_Mode:
-			print("===================== Live Inferencing =====================")
-			print("")
-			break
+			printMessage("===================== Live Inferencing =====================")
 
-			# # Start Live Mode
-			# status, message = headsetAPIWrapper.startInferencing()
+			# Start Live Mode
+			headsetAPIWrapper.startInferencing()
 
-			# print(message)
-			# prevAction = ""
-			# while True:
-			# 	message = headsetAPIWrapper.receiveInference()
-			# 	if not message:
-			# 		continue
-			# 	else:
-			# 		action = message.decode()
-			# 		if prevAction == action:
-			# 			pass
-			# 		elif action == "neutral":
-			# 			pass
-			# 		elif action == "lift":
-			# 			control.grab_and_get()
-			# 			time.sleep(1)
-			# 		elif action == "drop":
-			# 			control.put_back()
-			# 			time.sleep(1)
-			# 		elif action == "disappear":
-			# 			control.take_picture()
-			# 			time.sleep(1)
-			# 		else:
-			# 			print("Invalid Inference")
-			# 		prevAction = action
-			# except KeyboardInterrupt:
-			# 	print("Caught Keyboard interrupt")
+			while True:
+				status, message, action, power, time = headsetAPIWrapper.receiveInference()
+				if isPressed(rstButton):
+					headsetAPIWrapper.stopInferencing()
+					currentMode = modeType.Initializing
+					break
+				elif isPressed(ProfileSltButton):
+					headsetAPIWrapper.stopInferencing()
+					currentMode = modeType.Profile_Select
+					break
+				elif not status:
+					printMessage(message)
+					continue
+				elif action == "neutral":
+					continue
+				elif action == "lift":
+					# control.grab_and_get()
+					print(action)
+				elif action == "drop":
+					#control.put_back()
+					print(action)
+				elif action == "disappear":
+					#control.take_picture()
+					print(action)
+				else:
+					print("Invalid Inference: {}".format(action))
+				time.sleep(1)
 
-			# finally:
-			# 	print("Exiting!")
-			# 	# Stop Live Mode
-			# 	status, message = headsetAPIWrapper.stopInferencing()
-
-			# 	print(message)
-
-			# 	headsetAPIWrapper.serverSmartSocket.closeSocket()
-		
-
-		# print(modeType.Live_Mode.name)
-		# oledDriver.printToOled(modeType.Live_Mode.name)
-		#if previousMode != currentMode:
-			#print(currentMode.name)
-		#previousMode = currentMode
-
+				# Stop Live Mode
+				status, message = headsetAPIWrapper.stopInferencing()
 
 if __name__ == "__main__":
 	main()
