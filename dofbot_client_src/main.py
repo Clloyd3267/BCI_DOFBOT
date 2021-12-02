@@ -40,9 +40,11 @@ class DofbotSubsystem:
 		headsetInterface (ClientInterfaceDriver) : Whether this socket is a client or server.
 		currentMode      (ModeType enum)         : The IP address of the server.
 		debug            (bool)                  : Whether debug prints should be enabled.
+		consoleMode      (bool)                  : Whether the program uses the console/keyboard
+		                                           or the buttonpad and oled.
     """
 
-	def __init__(self, server_ip, server_port, debug=False):
+	def __init__(self, server_ip, server_port, debug=False, consoleMode=True):
 		"""
 		The default constructor for class DofbotSubsystem.
 
@@ -50,9 +52,11 @@ class DofbotSubsystem:
 			server_ip   (str)        : The IP address of the server.
 			server_port (str)        : The Port of the server.
 			debug       (bool)       : Whether debug prints should be enabled.
+			consoleMode (bool)       : Whether the program uses the console/keyboard or the buttonpad and oled.
 		"""
 
 		self.debug = debug
+		self.consoleMode = consoleMode
 
 		# Headset API Interface
 		# headsetInterface = ClientInterfaceDriver(server_ip, server_port) # CDL=> Replace with client later
@@ -64,7 +68,9 @@ class DofbotSubsystem:
 	def initializationMode(self):
 		"""The user logic for the initialization mode."""
 		# CDL=> Move arm to default position
-		pass # CDL=> Do more here!
+		# CDL=> Update mode on oled
+		printMessage("Entering Profile Selection Mode")
+		self.currentMode = ModeType.PROFILE_SELECTION_MODE
 
 	def profileSelectionMode(self):
 		"""The user logic for the profile selection mode."""
@@ -72,8 +78,9 @@ class DofbotSubsystem:
 		# Get a list of all the profiles
 		profileList = self.headsetInterface.listProfiles()
 
-		print("--------Select or Create a Profile---------")
-		userInput = input("Type select or create: ").lower()
+		printMessage("--------Select or Create a Profile---------")
+
+		userInput = promptUserInput("Type select or create: ").lower()
 
 		if userInput == "select":
 			profileName = promptUserList("Current Profile List:", profileList)
@@ -84,81 +91,103 @@ class DofbotSubsystem:
 				else:
 					message = "What would you like to do with the profile? Type Load, Delete, or Train: "
 
-				userInput = input(message).lower()
+				userInput = promptUserInput(message).lower()
 
 				if userInput == "load":
-					print("Going to Live mode")
 					self.headsetInterface.selectProfile(profileName)
+					printMessage("Entering Live Mode")
 					self.currentMode = ModeType.LIVE_MODE
+
 				elif userInput == "train":
-					print("Going to Training Mode")
 					self.headsetInterface.selectProfile(profileName)
+					printMessage("Entering Training Mode")
 					self.currentMode = ModeType.TRAINING_MODE
+
 				elif keyboardPluggedIn() and userInput == "rename":
-					userInput = input("Enter a new profile name: ")
+					userInput = promptUserInput("Enter a new profile name: ")
 					self.headsetInterface.renameProfile(profileName, userInput)
-					print("Profile {} renamed to {}".format(profileName, userInput))
+					printMessage("Profile {} renamed to {}".format(profileName, userInput))
+
 				elif userInput == "delete":
-					userInput = input("Are you sure you want to delete?").lower()
+					userInput = promptUserInput("Are you sure you want to delete? (yes or no): ").lower()
 					if userInput == "yes":
 						self.headsetInterface.deleteProfile(profileName)
 					else:
-						print("Canceling delete operation for {}".format(profileName))
+						printMessage("Canceling delete operation for {}".format(profileName))
+
 				else:
-					print("\nInvalid Input. Please try again!\n")
+					printMessage("\nInvalid Input. Please try again!\n")
 			else:
-				print("\nInvalid Input. Please try again!\n")
+				printMessage("\nInvalid Input. Please try again!\n")
 
 		elif userInput == "create":
 			newProfileName = ""
 			if keyboardPluggedIn():
-				newProfileName = input("Enter a new profile name: ")
+				newProfileName = promptUserInput("Enter a new profile name: ")
 			else:
 				i = 0
+				# Generate new profile name with next lowest number
 				while True:
 					newProfileName = "New Profile {}".format(i)
 					if newProfileName not in profileList:
 						break
 					else:
 						i += 1
+
 			self.headsetInterface.createProfile(newProfileName)
-			print("Profile {} created".format(newProfileName))
+			printMessage("Profile {} created".format(newProfileName))
 
 	def trainingMode(self):
 		"""The user logic for the training mode."""
 
-		userInput = input("Type clear to clear an all training, trainact to train an action or exit to leave and go live mode: ").lower()
-		if keyboardPluggedIn() and userInput == "clear":
-			print("Deleting training data")
-			self.headsetInterface.clearAll()
-		if keyboardPluggedIn() and userInput == "trainact":
+		userInput = promptUserList("Do you want to exit to live mode, train this profile, or clear all training?", ["clear", "train", "exit"])
+
+		if userInput == "clear":
+			printMessage("Deleting training data for {} profile".format(self.headsetInterface.getSelectedProfile()))
+			self.headsetInterface.clearAll() # CDL=> WE NEED TO MAKE THIS!
+
+		if userInput == "train":
 			while True:
-				actionList = list(self.headsetInterface.getSigTrainedAct().keys())
-				action = promptUserList("Action List: ", actionList)
+				# Get list of trainable list of actions
+				actionList = list(self.headsetInterface.getSigTrainedAct().keys()) # CDL=> Add number of times trained
+
+				action = promptUserList("Select an action to train or reset: ", actionList)
+
 				trainDelete = promptUserList("Do you want to train or delete training for the action?", ["train", "delete"])
+
 				if trainDelete == "delete":
+					# CDL=> Add "are you sure you want to yadayada"
 					self.headsetInterface.trainProfile(action, "mentalCommand", "erase")
+					printMessage("Training Data deleted for {} action".format(action))
+
 				elif trainDelete == "train":
-					printMessage("Please think about or move with selected action")
-					printMessage("Press button when ready")
-					#insert button push
+					printMessage("Please think about or move with selected action: {}".format(action))
 
+					# CDL=> Add button press later for user is ready
+
+					# Start the training for specific action
 					self.headsetInterface.trainProfile(action, "mentalCommand", "start")
-					#training running
-					acceptReset = promptUserList("Training Complete! Do you want to accept or reject the training? ", ["accept", "reject"])
-					if acceptReset == "accept":
+
+					# Training running
+					acceptReject = promptUserList("Training Complete! Do you want to accept or reject the training? ", ["accept", "reject"])
+
+					if acceptReject == "accept":
+						# Accept the training for specific action
 						self.headsetInterface.trainProfile(action, "mentalCommand", "accept")
-						doneNotDone = promptUserList("Are you done or do you want to train again? Type done or continue. ", ["done", "continue"])		# Check if done or train again
-						if doneNotDone == "done": 					#if done, break, else continue
-							break
+						printMessage("Training accepted")
 
-						elif acceptReset == "reject":
-							self.headsetInterface.trainProfile(action, "mentalCommand", "reset")
-							printMessage("Training rejected")
-							break
+					elif acceptReject == "reject":
+						self.headsetInterface.trainProfile(action, "mentalCommand", "reset")
+						printMessage("Training rejected")
 
-		if keyboardPluggedIn() and userInput == "exit":
-			print("Going to live mode")
+					# Check if done or train again
+					doneNotDone = promptUserList("Are you done or do you want to continue training this action again? ", ["done", "continue"])
+
+					if doneNotDone == "done":
+						break
+
+		if userInput == "exit":
+			printMessage("Entering Live Mode")
 			self.currentMode = ModeType.LIVE_MODE
 
 	def liveMode(self):
