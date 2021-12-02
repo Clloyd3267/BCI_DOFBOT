@@ -78,6 +78,23 @@ class ServerInterfaceDriver:
 	def getEnumStatus(self, booleanStatus):
 		return Status.SUCCESS if booleanStatus else Status.FAILURE
 
+	def getDetectionString(self, detection):
+		return "mentalCommand" if detection == Detection.MENTAL_COMMAND else "facialCommand"
+
+	def getTrainingStatusString(self, trainingStatus):
+		if   trainingStatus == TrainingStatus.START:
+			return "start"
+		elif trainingStatus == TrainingStatus.ACCEPT:
+			return "accept"
+		elif trainingStatus == TrainingStatus.REJECT:
+			return "reject"
+		elif trainingStatus == TrainingStatus.RESET:
+			return "reset"
+		elif trainingStatus == TrainingStatus.ERASE:
+			return "erase"
+		else:
+			return "none"
+
 	def handleMessage(self, messageByteString):
 		# Create a new generic protobuf message
 		genericMessage = Any()
@@ -208,8 +225,8 @@ class ServerInterfaceDriver:
 
 			# Handle request command
 			action = requestMessage.action
-			detection = requestMessage.detectionType
-			status = requestMessage.trainingStatus
+			detection = self.getDetectionString(requestMessage.detectionType)
+			status = self.getTrainingStatusString(requestMessage.trainingStatus)
 
 			status, statusMessage = self.headsetAPIWrapper.trainProfile(action, detection, status)
 
@@ -220,8 +237,49 @@ class ServerInterfaceDriver:
 
 			self.sendMessage(responseMessage)
 
-		# CDL=> GetDetectionInfoRequest
-		# CDL=> GetTrainedSignatureActionsRequest
+		elif genericMessage.Is(GetDetectionInfoRequest.DESCRIPTOR):  # GetDetectionInfoRequest
+			# Unpack specific message
+			requestMessage = GetDetectionInfoRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
+
+			# Handle request command
+			detection = self.getDetectionString(requestMessage.detectionType)
+
+			status, statusMessage, actionsList = self.headsetAPIWrapper.getDetectionInfo(detection)
+
+			# Package and send response message
+			responseMessage = GetDetectionInfoResponse()
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
+
+			# Add the action list to the response list
+			responseMessage.actions.extend(actionsList)
+
+			self.sendMessage(responseMessage)
+
+		elif genericMessage.Is(GetTrainedSignatureActionsRequest.DESCRIPTOR):  # GetTrainedSignatureActionsRequest
+			# Unpack specific message
+			requestMessage = GetTrainedSignatureActionsRequest()
+			self.unpackRequestMessage(requestMessage, genericMessage)
+
+			# Handle request command
+			detection = requestMessage.detectionType
+
+			status, statusMessage, trainedActions, totalTimesTrained = self.headsetAPIWrapper.getTrainedSignatureActions(detection)
+
+			# Package and send response message
+			responseMessage = GetTrainedSignatureActionsResponse()
+			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest, self.getEnumStatus(status), statusMessage)
+
+			# Add the trained action list to the response list
+			responseMessage.totalTimesTrained = totalTimesTrained
+
+			# Add the trained actions
+			for action in trainedActions.keys():
+				trainedAction = responseMessage.TrainedActions.add()
+				trainedAction.action = action
+				trainedAction.timesTrained = trainedAction.get(action)
+
+			self.sendMessage(responseMessage)
 
 		elif genericMessage.Is(StartInferencingRequest.DESCRIPTOR):  # StartInferencingRequest
 			# Unpack specific message

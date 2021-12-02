@@ -10,6 +10,8 @@ from google.protobuf.any_pb2  import *
 from SmartSockets.SmartSocket import *
 import itertools
 
+from headset_server_src.bci_dofbot_interface_pb2 import GetDetectionInfoRequest, GetDetectionInfoResponse, GetTrainedSignatureActionsRequest, GetTrainedSignatureActionsResponse
+
 class ClientInterfaceDriver:
 	def __init__(self, server_ip, server_port):
 
@@ -34,6 +36,23 @@ class ClientInterfaceDriver:
 
 	def getNextResponseID(self):
 		return next(self.currentResponseID)
+
+	def getDetectionEnum(self, detection):
+		return Detection.MENTAL_COMMAND if detection == "mentalCommand" else Detection.FACIAL_COMMAND
+
+	def getTrainingStatusEnum(self, trainingStatus):
+		if   trainingStatus == "start":
+			return TrainingStatus.START
+		elif trainingStatus == "accept":
+			return TrainingStatus.ACCEPT
+		elif trainingStatus == "reject":
+			return TrainingStatus.REJECT
+		elif trainingStatus == "reset":
+			return TrainingStatus.RESET
+		elif trainingStatus == "erase":
+			return TrainingStatus.ERASE
+		else:
+			return None
 
 	def sendMessage(self, protoMessage):
 		genericMessage = Any()
@@ -219,8 +238,8 @@ class ClientInterfaceDriver:
 
 		# Populate request message
 		requestMessage.action = action
-		requestMessage.detectionType = detection
-		requestMessage.trainingStatus = status
+		requestMessage.detectionType = self.getDetectionEnum(detection)
+		requestMessage.trainingStatus = self.getTrainingStatusEnum(status)
 
 		# Send request message
 		self.sendMessage(requestMessage)
@@ -236,6 +255,59 @@ class ClientInterfaceDriver:
 		else:
 			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
 			return False, "Error parsing message!"
+
+	def getDetectionInfo(self, detection):
+		# Package and send request message
+		requestMessage = GetDetectionInfoRequest()
+		self.populateBaseRequest(requestMessage.baseRequest)
+
+		# Populate request message
+		requestMessage.detectionType = self.getDetectionEnum(detection)
+
+		# Send request message
+		self.sendMessage(requestMessage)
+
+		genericMessage = self.waitForGenericMessage()
+
+		if genericMessage.Is(GetDetectionInfoResponse.DESCRIPTOR):
+			# Parse message
+			responseMessage = GetDetectionInfoResponse()
+			self.unpackResponseMessage(responseMessage, genericMessage)
+
+			actionList = responseMessage.actions
+
+			return responseMessage.baseResponse.status == Status.SUCCESS, responseMessage.baseResponse.statusMessage, actionList
+		else:
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!", None
+
+	def getTrainedActions(self, detection):
+		# Package and send request message
+		requestMessage = GetTrainedSignatureActionsRequest()
+		self.populateBaseRequest(requestMessage.baseRequest)
+
+		# Populate request message
+		requestMessage.detectionType = self.getDetectionEnum(detection)
+
+		# Send request message
+		self.sendMessage(requestMessage)
+
+		genericMessage = self.waitForGenericMessage()
+
+		if genericMessage.Is(GetTrainedSignatureActionsResponse.DESCRIPTOR):
+			# Parse message
+			responseMessage = GetTrainedSignatureActionsResponse()
+			self.unpackResponseMessage(responseMessage, genericMessage)
+
+			totalTimesTrained = responseMessage.totalTimesTrained
+			trainedActions = {}
+			for trainedAction in responseMessage.trainedActions:
+				trainedActions[trainedAction.action] = trainedAction.timesTrained
+
+			return responseMessage.baseResponse.status == Status.SUCCESS, responseMessage.baseResponse.statusMessage, trainedActions, totalTimesTrained
+		else:
+			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
+			return False, "Error parsing message!", None, None
 
 	def startInferencing(self):
 		# Package and send request message
