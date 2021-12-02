@@ -8,14 +8,15 @@
 # Imports
 # from bci_dofbot_interface_pb2 import *
 from SmartSockets.SmartSocket import *
+
 from custom_cortex import Cortex
 
 # Global Variables
 user = {
-   "license": "b277efe2-8fdd-4bef-a54e-b5b85058bf63",
-   "client_id": "yVAmVcwkGHUzjEMEHso81MHrPtihWveETJzIN9VK",
-   "client_secret": "eF3OB86C40spvM1WwyjYpItSNoUIDI6dnPXl1XShrCLzgLqZ0GQTBZ6jtzUEfLcQul4eCD0h8JdMnFaSSPXis5AISy5Me4MtUdTsXJ2skW1qUpnrNVRKXgbmtZHiEvIx",
-   "debit": 100
+    "license": "b277efe2-8fdd-4bef-a54e-b5b85058bf63",
+    "client_id": "yVAmVcwkGHUzjEMEHso81MHrPtihWveETJzIN9VK",
+    "client_secret": "eF3OB86C40spvM1WwyjYpItSNoUIDI6dnPXl1XShrCLzgLqZ0GQTBZ6jtzUEfLcQul4eCD0h8JdMnFaSSPXis5AISy5Me4MtUdTsXJ2skW1qUpnrNVRKXgbmtZHiEvIx",
+    "debit": 100
 }
 
 # Headset Wrapper
@@ -171,9 +172,8 @@ class HeadsetAPIWrapper:
 			return False, "Inference failed", "", 0, 0
 
 
-if __name__ == "__main__":
+# Look at smart socket for debug print statements
 
-	h = HeadsetAPIWrapper()
 
 	# h.createProfile("HeadsetAPITest1")
 	# print(h.listProfiles())
@@ -213,4 +213,9 @@ if __name__ == "__main__":
 	#
 	# print("out of loop")
 
+    h.selectProfile("ToTrain")
+    print(h.getSelectedProfile())
 
+    h.trainProfile('neutral', 'mentalCommand', 'start')
+    print("after train called")
+    h.receiveInference()
