@@ -18,9 +18,6 @@ class ModeType(enum.Enum):
 	TRAINING_MODE = 3
 	LIVE_MODE = 4
 
-def keyboardPluggedIn(): # CDL=> Replace with final version later
-	return True
-
 # CDL=> Move to library file
 rstButton = False
 ProfileSltButton = False
@@ -37,40 +34,55 @@ class DofbotSubsystem:
 	Dofbot Robotic Arm Raspberry Pi.
 
 	Attributes:
-		headsetInterface (ClientInterfaceDriver) : Whether this socket is a client or server.
-		currentMode      (ModeType enum)         : The IP address of the server.
-		debug            (bool)                  : Whether debug prints should be enabled.
-		consoleMode      (bool)                  : Whether the program uses the console/keyboard
-		                                           or the buttonpad and oled.
-    """
+	    headsetInterface (ClientInterfaceDriver) : The headset interface.
+		userIO           (UserIOInteraction)     : The user interaction interface.
+	    currentMode      (ModeType enum)         : The IP address of the server.
+	    debug            (bool)                  : Whether debug prints should be enabled.
+	    consoleMode      (bool)                  : Whether the program uses the console/keyboard
+	                                               or the buttonpad and oled.
+	"""
 
-	def __init__(self, server_ip, server_port, debug=False, consoleMode=True):
+	def __init__(self, server_ip, server_port, debug=True, consoleMode=True):
 		"""
 		The default constructor for class DofbotSubsystem.
 
 		Arguments:
-			server_ip   (str)        : The IP address of the server.
-			server_port (str)        : The Port of the server.
-			debug       (bool)       : Whether debug prints should be enabled.
-			consoleMode (bool)       : Whether the program uses the console/keyboard or the buttonpad and oled.
+		    server_ip   (str)        : The IP address of the server.
+		    server_port (str)        : The Port of the server.
+		    debug       (bool)       : Whether debug prints should be enabled.
+		    consoleMode (bool)       : Whether the program uses the console/keyboard or the buttonpad and oled.
 		"""
 
 		self.debug = debug
-		self.consoleMode = consoleMode
+		self.consoleMode = consoleMode # CDl=> Use this later
 
-		# Headset API Interface
+		# Headset API interface
 		# headsetInterface = ClientInterfaceDriver(server_ip, server_port) # CDL=> Replace with client later
 		self.headsetInterface = HeadsetAPIWrapper()
 
-		# System Mode
-		self.currentMode = ModeType.INITIALIZATION_MODE
+		# User interaction object
+		self.userIO = UserIOInteraction(consoleMode)
+
+		# Set default system mode
+		self.setCurrentMode(ModeType.INITIALIZATION_MODE)
+
+	def setCurrentMode(self, mode):
+		"""
+		Function to change the current mode of the system.
+
+		Arguments:
+		    mode (ModeType enum) : The mode to change to.
+		"""
+
+		self.currentMode = mode
+		# CDL=> Update mode on oled
+		if self.debug: print("Entering mode {}\n".format(self.currentMode.name))
 
 	def initializationMode(self):
 		"""The user logic for the initialization mode."""
+
 		# CDL=> Move arm to default position
-		# CDL=> Update mode on oled
-		printMessage("Entering Profile Selection Mode")
-		self.currentMode = ModeType.PROFILE_SELECTION_MODE
+		self.setCurrentMode(ModeType.PROFILE_SELECTION_MODE)
 
 	def profileSelectionMode(self):
 		"""The user logic for the profile selection mode."""
@@ -78,52 +90,49 @@ class DofbotSubsystem:
 		# Get a list of all the profiles
 		profileList = self.headsetInterface.listProfiles()
 
-		printMessage("--------Select or Create a Profile---------")
-
-		userInput = promptUserInput("Type select or create: ").lower()
+		userInput = self.userIO.promptUserList("Do you want to select or create a profile?", ["select", "create"])
 
 		if userInput == "select":
-			profileName = promptUserList("Current Profile List:", profileList)
+			profileName = self.userIO.promptUserList("Current Profile List:", profileList)
 			if profileName:
-				message = ""
-				if keyboardPluggedIn():
-					message = "What would you like to do with the profile? Type Load, Delete, Rename, or Train: "
+				options = ""
+				if self.userIO.keyboardPluggedIn():
+					options = ["load", "delete", "rename", "train"]
 				else:
-					message = "What would you like to do with the profile? Type Load, Delete, or Train: "
+					options = ["load", "delete", "train"]
 
-				userInput = promptUserInput(message).lower()
+				userInput = self.userIO.promptUserList("What would you like to do with the profile?", options)
 
 				if userInput == "load":
 					self.headsetInterface.selectProfile(profileName)
-					printMessage("Entering Live Mode")
-					self.currentMode = ModeType.LIVE_MODE
+					self.setCurrentMode(ModeType.LIVE_MODE)
 
 				elif userInput == "train":
 					self.headsetInterface.selectProfile(profileName)
-					printMessage("Entering Training Mode")
-					self.currentMode = ModeType.TRAINING_MODE
+					self.setCurrentMode(ModeType.TRAINING_MODE)
 
-				elif keyboardPluggedIn() and userInput == "rename":
-					userInput = promptUserInput("Enter a new profile name: ")
+				elif self.userIO.keyboardPluggedIn() and userInput == "rename":
+					userInput = self.userIO.promptUserInput("Enter a new profile name: ")
 					self.headsetInterface.renameProfile(profileName, userInput)
-					printMessage("Profile {} renamed to {}".format(profileName, userInput))
+					self.userIO.printMessage("Profile {} renamed to {}".format(profileName, userInput))
 
 				elif userInput == "delete":
-					userInput = promptUserInput("Are you sure you want to delete? (yes or no): ").lower()
+					userInput = self.userIO.promptUserList("Are you sure you want to delete profile {}?".format(profileName), ["no", "yes"])
 					if userInput == "yes":
 						self.headsetInterface.deleteProfile(profileName)
+						self.userIO.printMessage("Profile {} deleted".format(profileName))
 					else:
-						printMessage("Canceling delete operation for {}".format(profileName))
+						self.userIO.printMessage("Canceling delete operation for {}".format(profileName))
 
 				else:
-					printMessage("\nInvalid Input. Please try again!\n")
+					self.userIO.printMessage("Invalid Input. Please try again!")
 			else:
-				printMessage("\nInvalid Input. Please try again!\n")
+				self.userIO.printMessage("Invalid Input. Please try again!")
 
 		elif userInput == "create":
 			newProfileName = ""
-			if keyboardPluggedIn():
-				newProfileName = promptUserInput("Enter a new profile name: ")
+			if self.userIO.keyboardPluggedIn():
+				newProfileName = self.userIO.promptUserInput("Enter a new profile name: ")
 			else:
 				i = 0
 				# Generate new profile name with next lowest number
@@ -135,33 +144,42 @@ class DofbotSubsystem:
 						i += 1
 
 			self.headsetInterface.createProfile(newProfileName)
-			printMessage("Profile {} created".format(newProfileName))
+			self.userIO.printMessage("Profile {} created".format(newProfileName))
 
 	def trainingMode(self):
 		"""The user logic for the training mode."""
 
-		userInput = promptUserList("Do you want to exit to live mode, train this profile, or clear all training?", ["clear", "train", "exit"])
+		userInput = self.userIO.promptUserList("Do you want to exit to live mode, train this profile, or clear all training?", ["clear", "train", "exit"])
 
 		if userInput == "clear":
-			printMessage("Deleting training data for {} profile".format(self.headsetInterface.getSelectedProfile()))
-			self.headsetInterface.clearAll() # CDL=> WE NEED TO MAKE THIS!
+			userInput = self.userIO.promptUserList("Are you sure you want to delete all training data for profile {}?".format(self.headsetInterface.getSelectedProfile()), ["no", "yes"])
 
-		if userInput == "train":
+			if userInput == "yes":
+				self.headsetInterface.clearAll() # CDL=> WE NEED TO MAKE THIS!
+				self.userIO.printMessage("Training data deleted for profile {}?".format(self.headsetInterface.getSelectedProfile()))
+			else:
+				self.userIO.printMessage("Canceling delete operation for profile {}?".format(self.headsetInterface.getSelectedProfile()))
+
+		elif userInput == "train":
 			while True:
 				# Get list of trainable list of actions
 				actionList = list(self.headsetInterface.getSigTrainedAct().keys()) # CDL=> Add number of times trained
 
-				action = promptUserList("Select an action to train or reset: ", actionList)
+				action = self.userIO.promptUserList("Select an action to train or reset: ", actionList)
 
-				trainDelete = promptUserList("Do you want to train or delete training for the action?", ["train", "delete"])
+				trainDelete = self.userIO.promptUserList("Do you want to train or delete training for the action {}?".format(action), ["train", "delete"])
 
 				if trainDelete == "delete":
-					# CDL=> Add "are you sure you want to yadayada"
-					self.headsetInterface.trainProfile(action, "mentalCommand", "erase")
-					printMessage("Training Data deleted for {} action".format(action))
+					userInput = self.userIO.promptUserList("Are you sure you want to delete all training data for action {}?".format(action), ["no", "yes"])
+
+					if userInput == "yes":
+						self.headsetInterface.trainProfile(action, "mentalCommand", "erase")
+						self.userIO.printMessage("Training data deleted for action {}".format(action))
+					else:
+						self.userIO.printMessage("Canceling delete operation for action {}".format(action))
 
 				elif trainDelete == "train":
-					printMessage("Please think about or move with selected action: {}".format(action))
+					self.userIO.printMessage("Please think about or move with selected action: {}".format(action))
 
 					# CDL=> Add button press later for user is ready
 
@@ -169,26 +187,24 @@ class DofbotSubsystem:
 					self.headsetInterface.trainProfile(action, "mentalCommand", "start")
 
 					# Training running
-					acceptReject = promptUserList("Training Complete! Do you want to accept or reject the training? ", ["accept", "reject"])
+					acceptReject = self.userIO.promptUserList("Training Complete! Do you want to accept or reject the training? ", ["accept", "reject"])
 
 					if acceptReject == "accept":
 						# Accept the training for specific action
 						self.headsetInterface.trainProfile(action, "mentalCommand", "accept")
-						printMessage("Training accepted")
+						self.userIO.printMessage("Training accepted")
 
 					elif acceptReject == "reject":
 						self.headsetInterface.trainProfile(action, "mentalCommand", "reset")
-						printMessage("Training rejected")
+						self.userIO.printMessage("Training rejected")
 
 					# Check if done or train again
-					doneNotDone = promptUserList("Are you done or do you want to continue training this action again? ", ["done", "continue"])
+					doneNotDone = self.userIO.promptUserList("Are you done or do you want to continue training this action again? ", ["done", "continue"])
 
-					if doneNotDone == "done":
-						break
+					if doneNotDone == "done": break
 
-		if userInput == "exit":
-			printMessage("Entering Live Mode")
-			self.currentMode = ModeType.LIVE_MODE
+		elif userInput == "exit":
+			self.setCurrentMode(ModeType.LIVE_MODE)
 
 	def liveMode(self):
 		"""The user logic for the live mode."""
@@ -200,14 +216,14 @@ class DofbotSubsystem:
 			status, message, action, __, __ = self.headsetInterface.receiveInference()
 			if isPressed(rstButton):
 				self.headsetInterface.stopInferencing()
-				self.currentMode = ModeType.INITIALIZATION_MODE
+				self.setCurrentMode(ModeType.INITIALIZATION_MODE)
 				break
 			elif isPressed(ProfileSltButton):
 				self.headsetInterface.stopInferencing()
-				self.currentMode = ModeType.PROFILE_SELECTION_MODE
+				self.setCurrentMode(ModeType.PROFILE_SELECTION_MODE)
 				break
 			elif not status:
-				printMessage(message)
+				self.userIO.printMessage(message)
 				continue
 			elif action == "neutral":
 				continue
@@ -220,6 +236,7 @@ class DofbotSubsystem:
 			elif action == "disappear":
 				#control.take_picture()
 				print(action)
+			# CDL=> Add more actions!
 			else:
 				print("Invalid Inference: {}".format(action))
 			time.sleep(1)
@@ -243,7 +260,7 @@ class DofbotSubsystem:
 				elif self.currentMode == ModeType.LIVE_MODE:
 					self.liveMode()
 		except:
-			print("Error exception occurred. Exiting!!!")
+			print("Exception occurred. Exiting!!!")
 
 if __name__ == "__main__":
 	# Connection information
