@@ -54,7 +54,7 @@ class DofbotSubsystem:
 		"""
 
 		self.debug = debug
-		self.consoleMode = consoleMode # CDl=> Use this later
+		self.consoleMode = consoleMode
 
 		# Headset API interface
 		# headsetInterface = ClientInterfaceDriver(server_ip, server_port) # CDL=> Replace with client later
@@ -155,7 +155,7 @@ class DofbotSubsystem:
 			userInput = self.userIO.promptUserList("Are you sure you want to delete all training data for profile {}?".format(self.headsetInterface.getSelectedProfile()), ["no", "yes"])
 
 			if userInput == "yes":
-				self.headsetInterface.clearAll() # CDL=> WE NEED TO MAKE THIS!
+				self.headsetInterface.clearAllTrainingData(self.headsetInterface.getSelectedProfile())
 				self.userIO.printMessage("Training data deleted for profile {}?".format(self.headsetInterface.getSelectedProfile()))
 			else:
 				self.userIO.printMessage("Canceling delete operation for profile {}?".format(self.headsetInterface.getSelectedProfile()))
@@ -163,7 +163,7 @@ class DofbotSubsystem:
 		elif userInput == "train":
 			while True:
 				# Get list of trainable list of actions
-				actionList = list(self.headsetInterface.getSigTrainedAct().keys()) # CDL=> Add number of times trained
+				actionList = list(self.headsetInterface.getTrainedActions().keys()) # CDL=> Add number of times trained
 
 				action = self.userIO.promptUserList("Select an action to train or reset: ", actionList)
 

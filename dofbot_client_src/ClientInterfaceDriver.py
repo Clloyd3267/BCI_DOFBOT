@@ -373,6 +373,12 @@ class ClientInterfaceDriver:
 			print("Error parsing message! Unexpected response type {}".format(genericMessage.TypeName))
 			return False, "Error parsing message!"
 
+	def clearAllTrainingData(self, profileName):
+		self.deselectProfile()
+		self.deleteProfile(profileName)
+		self.createProfile(profileName)
+		self.selectProfile()
+
 if __name__ == "__main__":
 	# Connection information
 	# server_ip = "128.153.176.67"

@@ -80,5 +80,11 @@ class HeadsetAPIWrapper:
 	def getDetectionInfo(self):
 		return["string1", "string2", "string3"]
 
-	def getSigTrainedAct(self):
+	def getTrainedActions(self):
 		return {"Action1": 3, "Action2": 5, "Action5": 69420}
+
+	def clearAllTrainingData(self, profileName):
+		self.deselectProfile()
+		self.deleteProfile(profileName)
+		self.createProfile(profileName)
+		self.selectProfile()
