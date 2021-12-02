@@ -90,9 +90,10 @@ class DofbotSubsystem:
 		# Get a list of all the profiles
 		profileList = self.headsetInterface.listProfiles()
 
-		userInput = self.userIO.promptUserList("Do you want to select or create a profile?", ["select", "create"])
+		if profileList:
+			userInput = self.userIO.promptUserList("Do you want to select or create a profile?", ["select", "create"])
 
-		if userInput == "select":
+		if profileList and userInput == "select":
 			profileName = self.userIO.promptUserList("Current Profile List:", profileList)
 			if profileName:
 				options = ""
@@ -129,7 +130,7 @@ class DofbotSubsystem:
 			else:
 				self.userIO.printMessage("Invalid Input. Please try again!")
 
-		elif userInput == "create":
+		elif not profileList or userInput == "create":
 			newProfileName = ""
 			if self.userIO.keyboardPluggedIn():
 				newProfileName = self.userIO.promptUserInput("Enter a new profile name: ")
@@ -149,16 +150,18 @@ class DofbotSubsystem:
 	def trainingMode(self):
 		"""The user logic for the training mode."""
 
+		__, __, selectedProfile = self.headsetInterface.getSelectedProfile()
+
 		userInput = self.userIO.promptUserList("Do you want to exit to live mode, train this profile, or clear all training?", ["clear", "train", "exit"])
 
 		if userInput == "clear":
-			userInput = self.userIO.promptUserList("Are you sure you want to delete all training data for profile {}?".format(self.headsetInterface.getSelectedProfile()), ["no", "yes"])
+			userInput = self.userIO.promptUserList("Are you sure you want to delete all training data for profile {}?".format(selectedProfile), ["no", "yes"])
 
 			if userInput == "yes":
-				self.headsetInterface.clearAllTrainingData(self.headsetInterface.getSelectedProfile())
-				self.userIO.printMessage("Training data deleted for profile {}?".format(self.headsetInterface.getSelectedProfile()))
+				self.headsetInterface.clearAllTrainingData(selectedProfile)
+				self.userIO.printMessage("Training data deleted for profile {}?".format(selectedProfile))
 			else:
-				self.userIO.printMessage("Canceling delete operation for profile {}?".format(self.headsetInterface.getSelectedProfile()))
+				self.userIO.printMessage("Canceling delete operation for profile {}?".format(selectedProfile))
 
 		elif userInput == "train":
 			while True:

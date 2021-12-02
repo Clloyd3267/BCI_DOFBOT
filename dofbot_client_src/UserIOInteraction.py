@@ -83,7 +83,9 @@ class UserIOInteraction:
 		    The string the user selected from the list.
 		"""
 
-		if self.consoleMode:
+		if not inputList:
+			return None
+		elif self.consoleMode:
 			while True:
 				print(message)
 				print("-" * len(message))
@@ -91,7 +93,7 @@ class UserIOInteraction:
 				for index, value in enumerate(inputList):
 					print ("{:<5} | {}".format(index, value))
 
-				userInput = input("Input the index of the value to select: ")
+				userInput = input("\nInput the index of the value to select: ")
 				print() # Add extra linebreak after section
 
 				if userInput.isnumeric() and 0 <= int(userInput) < len(inputList):
