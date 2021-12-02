@@ -167,3 +167,5 @@ protobuf_message_schema/include/google/protobuf/timestamp.proto
 protobuf_message_schema/include/google/protobuf/type.proto
 protobuf_message_schema/include/google/protobuf/wrappers.proto
 protobuf_message_schema/readme.txt
+.idea/BCI_DOFBOT.iml
+.idea/misc.xml

@@ -8,205 +8,196 @@
 # Imports
 # from bci_dofbot_interface_pb2 import *
 from SmartSockets.SmartSocket import *
+
 from custom_cortex import Cortex
 
 # Global Variables
 user = {
-   "license": "b277efe2-8fdd-4bef-a54e-b5b85058bf63",
-   "client_id": "yVAmVcwkGHUzjEMEHso81MHrPtihWveETJzIN9VK",
-   "client_secret": "eF3OB86C40spvM1WwyjYpItSNoUIDI6dnPXl1XShrCLzgLqZ0GQTBZ6jtzUEfLcQul4eCD0h8JdMnFaSSPXis5AISy5Me4MtUdTsXJ2skW1qUpnrNVRKXgbmtZHiEvIx",
-   "debit": 100
+    "license": "b277efe2-8fdd-4bef-a54e-b5b85058bf63",
+    "client_id": "yVAmVcwkGHUzjEMEHso81MHrPtihWveETJzIN9VK",
+    "client_secret": "eF3OB86C40spvM1WwyjYpItSNoUIDI6dnPXl1XShrCLzgLqZ0GQTBZ6jtzUEfLcQul4eCD0h8JdMnFaSSPXis5AISy5Me4MtUdTsXJ2skW1qUpnrNVRKXgbmtZHiEvIx",
+    "debit": 100
 }
 
+
+# Look at smart socket for debug print statements
+
+
 class HeadsetAPIWrapper:
-	def __init__(self):
-		self.c = Cortex(user)
-		self.c.do_prepare_steps()  # This starts Cortex
-		self.selectedProfile = ""
-		self.stream = ['com']  # Receives mental command data by default
-		self.c.bind(new_com_data=self.on_new_data)
-		self.selectedAction = ''
-		self.server_ip = "128.153.178.74"
-		self.server_port = 42071
-		# Create a server socket
-		self.server = SmartSocket(self.server_ip, self.server_port, SocketType.SERVER, debug=True)
+    def __init__(self):
+        self.c = Cortex(user)
+        self.c.do_prepare_steps()  # This starts Cortex
+        self.selectedProfile = ""
+        self.stream = ['com']  # Receives mental command data by default
+        self.c.bind(new_com_data=self.on_new_data)
+        self.selectedAction = ''
+        self.server_ip = "128.153.178.74"
+        self.server_port = 42071
 
-# ---------------------- Debug Actions ----------------------
+        # Create a server socket
+        self.server = SmartSocket(self.server_ip, self.server_port, SocketType.SERVER, debug=True)
 
+    # ---------------------- Debug Actions ----------------------
 
+    # ---------------------- Profile Actions ----------------------
 
-# ---------------------- Profile Actions ----------------------
+    # Returns a list of strings containing the profile name
+    def listProfiles(self):
+        return self.c.query_profile()
 
-	# Make a list of strings containing the profile name
-	def listProfiles(self):
-		return self.c.query_profile()
+    # Creates a new profile unless name is already taken
+    def createProfile(self, profileName):
 
-	# Creates a new profile unless name is already taken
-	## character limits?? ##
-	def createProfile(self, profileName):
+        if profileName not in self.c.query_profile():
+            status = 'create'
+            self.c.setup_profile(profileName, status)
 
-		if profileName not in self.c.query_profile():
-			status = 'create'
-			self.c.setup_profile(profileName, status)
+            return True, "Profile {} added to profile list!".format(profileName)
+        else:
+            return False, "Profile {} already in profile list!".format(profileName)
 
-			return True, "Profile {} added to profile list!".format(profileName)
-		else:
-			return False, "Profile {} already in profile list!".format(profileName)
+    # Change the name of an existing profile
+    def renameProfile(self, oldProfileName, newProfileName):
 
-	# Change the name of an existing profile
-	def renameProfile(self, oldProfileName, newProfileName):
+        if oldProfileName not in self.c.query_profile():
+            return False, "Old profile {} not in profile list!".format(oldProfileName)
+        elif newProfileName in self.c.query_profile():
+            return False, "New profile {} already in profile list!".format(newProfileName)
+        else:
+            status = 'rename'
+            self.c.setup_profile(oldProfileName, status, newProfileName)
+            return True, "Profile renamed from {} to {} in profile list!".format(oldProfileName, newProfileName)
 
-		if oldProfileName not in self.c.query_profile():
-			return False, "Old profile {} not in profile list!".format(oldProfileName)
-		elif newProfileName in self.c.query_profile():
-			return False, "New profile {} already in profile list!".format(newProfileName)
-		else:
-			status = 'rename'
-			self.c.setup_profile(oldProfileName, status, newProfileName)
-			return True, "Profile renamed from {} to {} in profile list!".format(oldProfileName, newProfileName)
+    # Removes a profile with a given name from the system
+    def deleteProfile(self, profileName):
+        if profileName not in self.c.query_profile():
+            return False, "Profile {} not in profile list!".format(profileName)
+        else:
+            status = 'delete'
+            self.c.setup_profile(profileName, status)
+            return True, "Profile {} removed from profile list!".format(profileName)
 
-	# Removes a profile with a given name from the system
-	def deleteProfile(self, profileName):
-		if profileName not in self.c.query_profile():
-			return False, "Profile {} not in profile list!".format(profileName)
-		else:
-			status = 'delete'
-			self.c.setup_profile(profileName, status)
-			return True, "Profile {} removed from profile list!".format(profileName)
+    # Loads the profile with the given name
+    def selectProfile(self, profileName):
+        if profileName not in self.c.query_profile():
+            return False, "Profile {} not in profile list!".format(profileName)
+        else:
+            self.selectedProfile = profileName
+            status = 'load'
+            self.c.setup_profile(profileName, status)
+            return True, "Profile {} selected!".format(profileName)
 
-	# Loads the profile with the given name
-	def selectProfile(self, profileName):
-		if profileName not in self.c.query_profile():
-			return False, "Profile {} not in profile list!".format(profileName)
-		else:
-			self.selectedProfile = profileName
-			status = 'load'
-			self.c.setup_profile(profileName, status)
-			return True, "Profile {} selected!".format(profileName)
+    # Unload the profile with the given name
+    def deselectProfile(self):
+        if not self.selectedProfile:
+            return False, "No profile selected!"
+        else:
+            message = "Profile {} selected!".format(self.selectedProfile)
+            status = 'unload'
+            self.c.setup_profile(self.selectedProfile, status)
+            self.selectedProfile = ""
+            return True, message
 
-	# Unload the profile with the given name
-	def deselectProfile(self):
-		if not self.selectedProfile:
-			return False, "No profile selected!"
-		else:
-			message = "Profile {} selected!".format(self.selectedProfile)
-			status = 'unload'
-			self.c.setup_profile(self.selectedProfile, status)
-			self.selectedProfile = ""
-			return True, message
+    # Return name of selected profile
+    def getSelectedProfile(self):
+        if not self.selectedProfile:
+            return False, "No profile selected!", ""
+        else:
+            return self.selectedProfile, "Profile {} is currently selected!".format(
+                self.selectedProfile), self.selectedProfile
 
-	# Return name of selected profile
-	def getSelectedProfile(self):
-		if not self.selectedProfile:
-			return False, "No profile selected!", ""
-		else:
-			return True, "Profile {} is currently selected!".format(self.selectedProfile), self.selectedProfile
+    # ---------------------- Training Actions ----------------------
 
-# ---------------------- Training Actions ----------------------
+    # Top priority
+    # Trains a profile using the given status and action
+    def trainProfile(self, action, detection, status):
 
-	# Top priority
-	# Trains a profile using the given status and action
-	def trainProfile(self, action, detection, status):
+        print("in training")
+        if detection != ('mentalCommand' or 'facialExpression'):
+            return False, "Detection must be set to 'mentalCommand' or 'facialExpression'"
 
-		print("in training")
-		if detection != ('mentalCommand' or 'facialExpression'):
-			return False, "Detection must be set to 'mentalCommand' or 'facialExpression'"
+        if detection == 'mentalCommand':
+            self.stream = ['com']
+        else:
+            self.stream = ['fac']
 
-		if detection == 'mentalCommand':
-			self.stream = 'com'
-		else:
-			self.stream = 'fac'
+        # Make ure valid status is used
+        if status != ('start' or 'accept' or 'reject' or 'reset' or 'erase'):
+            return False, "Status input must be 'start' or 'accept' or 'reject' or 'reset' or 'erase'"
 
-		# Make ure valid status is used
-		if status != ('start' or 'accept' or 'reject' or 'reset' or 'erase'):
-			return False, "Status input must be 'start' or 'accept' or 'reject' or 'reset' or 'erase'"
+        print('{} training -----------------------------------'.format(status))
 
-		print('{} training -----------------------------------'.format(status))
+        self.c.train_request(detection, action, status)
 
-		self.c.train_request(detection, action, status)
+        return True, "{} {} training request was successful".format(status, action)
 
-		return True, "{} {} training request was successful".format(status, action)
+    # Very Low priority
+    def clearTrain(self):
+        # TODO
+        pass
 
+    # Get all available commands for detection type
+    def getDetectionInfo(self, detection):
+        # TODO
+        pass
 
-	# Very Low priority
-	def clearTrain(self):
-		# TODO
-		pass
+    def getTrainedActions(self, detection):
+        # TODO
+        pass
 
-	# Get all available commands for detection type
-	def getDetectionInfo(self, detection):
-		#TODO
-		pass
+    # ---------------------- Inferencing Actions ----------------------
 
-	def getTrainedActions(self, detection):
-		#TODO
-		pass
+    # Subscribe to action stream
+    def startInferencing(self):
+        # self.c.subscribe(self.stream)
+        self.c.sub_request(self.stream)
+        return True, ""
 
-# ---------------------- Inferencing Actions ----------------------
+    # Unsubscribe to action stream
+    def stopInferencing(self):
+        self.c.subscribe(self.stream, True)
+        return True, ""
 
-	# Top priority
-	# Subscribe to action stream
-	def startInferencing(self):
-		# self.c.subscribe(self.stream)
-		self.c.sub_request(self.stream)
-		return True, ""
+    # Returns headset action, power, and time
+    def receiveInference(self):
+        stream_name = self.stream['streamName']
+        stream_labels = self.stream['cols']
+        print(stream_name, stream_labels)
+        return True, "", self.selectedAction, 0.5, 12
 
-	# Top priority
-	# Unsubscribe to action stream
-	def stopInferencing(self):
-		self.c.subscribe(self.stream, True)
-		return False, ""
-
-	# Top priority
-	# Returns headset action, power, and time
-	def receiveInference(self):
-		stream_name = self.stream['streamName']
-		stream_labels = self.stream['cols']
-		print(stream_name, stream_labels)
-		# return self.c.extract_data_labels(stream_name, stream_labels)
-		return True, "", self.selectedAction, 0.5, 12
-
-	# This function emits the command detected by cortex
-	def on_new_data(self, *args, **kwargs):
-		data = kwargs.get('data')
-		self.oldAction = self.selectedAction
-		self.selectedAction = data['action']
-		print(self.selectedAction)
-		if self.oldAction != self.selectedAction:
-			self.server.sendMessage(self.selectedAction.encode())
+    # This function emits the command detected by cortex
+    def on_new_data(self, *args, **kwargs):
+        data = kwargs.get('data')
+        self.oldAction = self.selectedAction
+        self.selectedAction = data['action']
+        print(self.selectedAction)
+        if self.oldAction != self.selectedAction:
+            self.server.sendMessage(self.selectedAction.encode())
 
 
 if __name__ == "__main__":
+    h = HeadsetAPIWrapper()
 
-	h = HeadsetAPIWrapper()
+    h.createProfile("HeadsetAPITest1")
+    print(h.listProfiles())
 
-	h.createProfile("HeadsetAPITest1")
-	print(h.listProfiles())
+    h.deleteProfile("HeadsetTest1")
+    print(h.listProfiles())
 
-	h.deleteProfile("HeadsetTest1")
-	print(h.listProfiles())
+    h.renameProfile("HeadsetAPITest1", "HeadsetTest1")
+    print(h.listProfiles())
 
-	h.renameProfile("HeadsetAPITest1", "HeadsetTest1")
-	print(h.listProfiles())
+    h.selectProfile("HeadsetTest1")
+    print(h.getSelectedProfile())
+    h.deselectProfile()
+    print(h.getSelectedProfile())
 
-	h.selectProfile("HeadsetTest1")
-	print(h.getSelectedProfile())
-	h.deselectProfile()
-	print(h.getSelectedProfile())
+    h.createProfile("ToTrain")
+    print(h.listProfiles())
 
-	h.createProfile("ToTrain")
-	print(h.listProfiles())
+    h.selectProfile("ToTrain")
+    print(h.getSelectedProfile())
 
-	h.selectProfile("ToTrain")
-	print(h.getSelectedProfile())
-
-	h.deselectProfile()
-	print(h.getSelectedProfile())
-
-	print("before train is called")
-	h.trainProfile('neutral', 'mentalCommand', 'start')
-	print("after train called")
-	h.receiveInference()
-
-
-
+    h.trainProfile('neutral', 'mentalCommand', 'start')
+    print("after train called")
+    h.receiveInference()

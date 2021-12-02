@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/BCI_DOFBOT" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/headset_server_src/SmartSockets" vcs="Git" />
   </component>
 </project>
