@@ -8,6 +8,7 @@
 # Imports
 from HeadsetAPIWrapperTest import * # CDL=>from ClientInterfaceDriver import *
 from UserIOInteraction import *
+import IODriver
 import enum
 import time
 
@@ -18,39 +19,29 @@ class ModeType(enum.Enum):
 	TRAINING_MODE = 3
 	LIVE_MODE = 4
 
-# CDL=> Move to library file
-rstButton = False
-ProfileSltButton = False
-def isPressed(button):
-	if button:
-		button = False
-		return True
-	else:
-		return False
-
 class DofbotSubsystem:
 	"""
 	This class describes the main code for the BCI_Dofbot system running on the
 	Dofbot Robotic Arm Raspberry Pi.
 
 	Attributes:
-	    headsetInterface (ClientInterfaceDriver) : The headset interface.
+		headsetInterface (ClientInterfaceDriver) : The headset interface.
 		userIO           (UserIOInteraction)     : The user interaction interface.
-	    currentMode      (ModeType enum)         : The IP address of the server.
-	    debug            (bool)                  : Whether debug prints should be enabled.
-	    consoleMode      (bool)                  : Whether the program uses the console/keyboard
-	                                               or the buttonpad and oled.
+		currentMode      (ModeType enum)         : The IP address of the server.
+		debug            (bool)                  : Whether debug prints should be enabled.
+		consoleMode      (bool)                  : Whether the program uses the console/keyboard
+		                                           or the buttonpad and oled.
 	"""
 
-	def __init__(self, server_ip, server_port, debug=True, consoleMode=True):
+	def __init__(self, server_ip, server_port, debug=False, consoleMode=True):
 		"""
 		The default constructor for class DofbotSubsystem.
 
 		Arguments:
-		    server_ip   (str)        : The IP address of the server.
-		    server_port (str)        : The Port of the server.
-		    debug       (bool)       : Whether debug prints should be enabled.
-		    consoleMode (bool)       : Whether the program uses the console/keyboard or the buttonpad and oled.
+			server_ip   (str)        : The IP address of the server.
+			server_port (str)        : The Port of the server.
+			debug       (bool)       : Whether debug prints should be enabled.
+			consoleMode (bool)       : Whether the program uses the console/keyboard or the buttonpad and oled.
 		"""
 
 		self.debug = debug
@@ -66,12 +57,29 @@ class DofbotSubsystem:
 		# Set default system mode
 		self.setCurrentMode(ModeType.INITIALIZATION_MODE)
 
+		IODriver.initInterruptEdge(IODriver.RST_BTN, self.handler)
+		IODriver.initInterruptEdge(IODriver.PRF_SEL_BTN, self.handler)
+
+	def handler(self, pin): # CDL=> Add interrupt support for full program
+		"""
+		Interrupt handler function for GPIO inputs.
+
+		Arguments:
+			pin (int) : The pin that caused the interrupt.
+		"""
+
+		if pin == IODriver.RST_BTN:
+			self.setCurrentMode(ModeType.INITIALIZATION_MODE)
+
+		elif pin == IODriver.PRF_SEL_BTN:
+			self.setCurrentMode(ModeType.PROFILE_SELECTION_MODE)
+
 	def setCurrentMode(self, mode):
 		"""
 		Function to change the current mode of the system.
 
 		Arguments:
-		    mode (ModeType enum) : The mode to change to.
+			mode (ModeType enum) : The mode to change to.
 		"""
 
 		self.currentMode = mode
@@ -91,7 +99,7 @@ class DofbotSubsystem:
 		profileList = self.headsetInterface.listProfiles()
 
 		if profileList:
-			userInput = self.userIO.promptUserList("Do you want to select or create a profile?", ["select", "create"])
+			userInput = self.userIO.promptUserList("SEL or CRE Profile?", ["select", "create"])
 
 		if profileList and userInput == "select":
 			profileName = self.userIO.promptUserList("Current Profile List:", profileList)
@@ -102,7 +110,7 @@ class DofbotSubsystem:
 				else:
 					options = ["load", "delete", "train"]
 
-				userInput = self.userIO.promptUserList("What would you like to do with the profile?", options)
+				userInput = self.userIO.promptUserList("Choose Operation?", options)
 
 				if userInput == "load":
 					self.headsetInterface.selectProfile(profileName)
@@ -118,7 +126,7 @@ class DofbotSubsystem:
 					self.userIO.printMessage("Profile {} renamed to {}".format(profileName, userInput))
 
 				elif userInput == "delete":
-					userInput = self.userIO.promptUserList("Are you sure you want to delete profile {}?".format(profileName), ["no", "yes"])
+					userInput = self.userIO.promptUserList("Delete prf {}?".format(profileName), ["no", "yes"])
 					if userInput == "yes":
 						self.headsetInterface.deleteProfile(profileName)
 						self.userIO.printMessage("Profile {} deleted".format(profileName))
@@ -212,40 +220,27 @@ class DofbotSubsystem:
 	def liveMode(self):
 		"""The user logic for the live mode."""
 
-		# Start Live Mode
-		self.headsetInterface.startInferencing()
+		# Get an inferencing action from headset
+		status, message, action, __, __ = self.headsetInterface.receiveInference()
 
-		while True:
-			status, message, action, __, __ = self.headsetInterface.receiveInference()
-			if isPressed(rstButton):
-				self.headsetInterface.stopInferencing()
-				self.setCurrentMode(ModeType.INITIALIZATION_MODE)
-				break
-			elif isPressed(ProfileSltButton):
-				self.headsetInterface.stopInferencing()
-				self.setCurrentMode(ModeType.PROFILE_SELECTION_MODE)
-				break
-			elif not status:
-				self.userIO.printMessage(message)
-				continue
-			elif action == "neutral":
-				continue
-			elif action == "lift":
-				# control.grab_and_get()
-				print(action)
-			elif action == "drop":
-				#control.put_back()
-				print(action)
-			elif action == "disappear":
-				#control.take_picture()
-				print(action)
-			# CDL=> Add more actions!
-			else:
-				print("Invalid Inference: {}".format(action))
-			time.sleep(1)
+		if not status:
+			print(message)
+		elif action == "neutral":
+			pass
+		elif action == "lift":
+			# control.grab_and_get()
+			print(action)
+		elif action == "drop":
+			#control.put_back()
+			print(action)
+		elif action == "disappear":
+			#control.take_picture()
+			print(action)
+		# CDL=> Add more actions!
+		else:
+			print("Invalid Inference: {}".format(action))
 
-			# Stop Live Mode
-			status, message = self.headsetInterface.stopInferencing()
+		time.sleep(1) # CDL=> Sleep for 250ms?
 
 	def main(self):
 		"""The main user logic for mode selection control."""
@@ -261,9 +256,21 @@ class DofbotSubsystem:
 					self.trainingMode()
 
 				elif self.currentMode == ModeType.LIVE_MODE:
-					self.liveMode()
-		except:
-			print("Exception occurred. Exiting!!!")
+					# Start Live Mode
+					self.headsetInterface.startInferencing()
+
+					# Loop through Live Mode
+					while self.currentMode == ModeType.LIVE_MODE:
+						self.liveMode()
+
+					# Stop Live Mode
+					self.headsetInterface.stopInferencing()
+
+		except KeyboardInterrupt:
+			print("Keyboard Interrupt issued. Exiting!")
+
+		except Exception as e:
+			print("Exception {} occurred. Exiting!".format(e))
 
 if __name__ == "__main__":
 	# Connection information
@@ -272,5 +279,3 @@ if __name__ == "__main__":
 
 	dofbotSubsystem = DofbotSubsystem(server_ip, server_port)
 	dofbotSubsystem.main()
-
-
