@@ -17,7 +17,7 @@ unzip protoc-3.19.1-linux-aarch_64.zip -d protoc-3.19.1-linux-aarch_64
 
 # Compile protobuf file to client folder
 cd protoc-3.19.1-linux-aarch_64
-./bin/protoc.exe --python_out=../../dofbot_client_src/ --proto_path=../ ../bci_dofbot_interface.proto
+./bin/protoc --python_out=../../dofbot_client_src/ --proto_path=../ ../bci_dofbot_interface.proto
 ```
 
 # Windows
