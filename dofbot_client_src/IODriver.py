@@ -1,66 +1,54 @@
-import RPi.GPIO as GPIO
-import signal
-import sys
+# ------------------------------------------------------------------------------
+# Name         : IODriver.py
+# Date Created : 11/16/2021
+# Author(s)    : Chris Lloyd, Josiah Schmidt, Camilla Ketola, Dylan Shuhart
+# Description  : Control library for Raspberry Pi GPIO.
+# ------------------------------------------------------------------------------
 
+# Imports
+import RPi.GPIO as GPIO
+
+# GPIO Pin assignments for BCI Dofbot # CDL=> Check these values later
+BTN_A_PIN = RST_BTN     = 11
+BTN_B_PIN = PRF_SEL_BTN = 13
+BTN_C_PIN = UP_BTN      = 15
+BTN_D_PIN = DN_BTN      = 16
+BTN_E_PIN = LF_BTN      = 18
+BTN_F_PIN = RT_BTN      = 22
+
+# Ignore warnings and user board pin numbering scheme
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
 
-BTN_A_PIN=11
-BTN_B_PIN=13
-BTN_C_PIN=15
-BTN_D_PIN=16
-BTN_E_PIN=18
-BTN_F_PIN=22
+def initInterruptEdge(button, callBackFunction):
+	"""
+	Setup an edge triggered interrupt on a specific gpio pin.
 
-GPIO.setup(BTN_A_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(BTN_B_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(BTN_C_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(BTN_D_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(BTN_E_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(BTN_F_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+	Arguments:
+		button           (int)  : The input pin number to add an interrupt to.
+		callBackFunction (Func) : The function to be invoked when an interrupt occurs.
+	"""
+	GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+	GPIO.add_event_detect(button, GPIO.RISING, bouncetime=200, callback=callBackFunction)
 
-def signal_handler(sig, frame): #close GPIOs on sigint
-        GPIO.cleanup()
-        sys.exit(0)
+def initPollingEdge(button):
+	"""
+	Setup an edge triggered detector on a specific gpio pin.
 
-def Poll_A(): #holds thread until button A is pushed
-        GPIO.wait_for_edge(BTN_A_PIN, GPIO.RISING)
+	Arguments:
+		button (int) : The input pin number to add a detector to.
+	"""
+	GPIO.setup(button, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+	GPIO.add_event_detect(button, GPIO.RISING, bouncetime=200)
 
-def Poll_B(): #holds thread until button B is pushed
-        GPIO.wait_for_edge(BTN_B_PIN, GPIO.RISING)
+def isPressed(button):
+	"""
+	Check if a specific pin had an edge event.
 
-def Poll_C(): #holds thread until button C is pushed
-        GPIO.wait_for_edge(BTN_C_PIN, GPIO.RISING)
+	Arguments:
+		button (int) : The input pin number to check for an edge event on.
 
-def Poll_D(): #holds thread until button D is pushed
-        GPIO.wait_for_edge(BTN_D_PIN, GPIO.RISING)
-
-def Poll_E(): #holds thread until button E is pushed
-        GPIO.wait_for_edge(BTN_E_PIN, GPIO.RISING)
-
-def Poll_F(): #holds thread until button F is pushed
-        GPIO.wait_for_edge(BTN_F_PIN, GPIO.RISING)
-
-def interruption(pin):
-        print("interrupted at " + str(pin))
-	return pin
-def interrupt_A(): #will return true once A is pushed
-	GPIO.add_event_detect(BTN_A_PIN, GPIO.FALLING, callback = interruption, bouncetime=100)
-
-def interrupt_B(): #will return true once B is pushed
-        GPIO.add_event_detect(BTN_B_PIN, GPIO.FALLING, callback = interruption, bouncetime=100)
-
-def interrupt_C(): #will return true once C is pushed
-        GPIO.add_event_detect(BTN_C_PIN, GPIO.FALLING, callback = interruption, bouncetime=100)
-
-def interrupt_D(): #will return true once D is pushed
-        GPIO.add_event_detect(BTN_D_PIN, GPIO.FALLING, callback = interruption, bouncetime=100)
-
-def interrupt_E(): #will return true once E is pushed
-        GPIO.add_event_detect(BTN_E_PIN, GPIO.FALLING, callback = interruption, bouncetime=100)
-
-def interrupt_F(): #will return true once F is pushed
-        GPIO.add_event_detect(BTN_F_PIN, GPIO.FALLING, callback = interruption, bouncetime=100)
-
-
-signal.signal(signal.SIGINT, signal_handler) #close GPIOs on sigint
+	Returns:
+		Boolean of whether an edge event occurred.
+	"""
+	return GPIO.event_detected(button)
