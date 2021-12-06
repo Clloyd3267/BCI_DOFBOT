@@ -261,7 +261,7 @@ class Cortex(Dispatcher):
                 'new_met_data', 'new_pow_data']
 
     def sub_request(self, stream):
-        print('subscribe request --------------------------------')
+        print('{} subscribe request --------------------------------'.format(stream))
         sub_request_json = {
             "jsonrpc": "2.0",
             "method": "subscribe",
@@ -428,8 +428,6 @@ class Cortex(Dispatcher):
         #     print(json.dumps(result_dic, indent=4))
 
         print(json.dumps(result_dic, indent=4))
-
-
 
     def extract_data_labels(self, stream_name, stream_cols):
         data = {}

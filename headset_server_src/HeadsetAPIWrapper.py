@@ -6,10 +6,8 @@
 # ------------------------------------------------------------------------------
 
 # Imports
-# from bci_dofbot_interface_pb2 import *
-from SmartSockets.SmartSocket import *
-
 from custom_cortex import Cortex
+import time
 
 # Global Variables
 user = {
@@ -23,21 +21,10 @@ user = {
 
 class HeadsetAPIWrapper:
 	def __init__(self):
-		self.c = Cortex(user, True)
+		self.c = Cortex(user)
 		self.c.do_prepare_steps()  # This starts Cortex
-		self.selectedProfile = ""
 		self.stream = ['com']  # Receives mental command data by default
-		# self.c.bind(new_com_data=self.on_new_data)
-		self.selectedAction = ''
-		self.server_ip = "128.153.178.74"
-		self.server_port = 42071
 		self.status_list = ['start', 'accept', 'reject', 'reset', 'erase']
-		# Create a server socket
-		# self.server = SmartSocket(self.server_ip, self.server_port, SocketType.SERVER, debug=True)
-
-# ---------------------- Debug Actions ----------------------
-
-
 
 # ---------------------- Profile Actions ----------------------
 
@@ -109,7 +96,6 @@ class HeadsetAPIWrapper:
 
 # ---------------------- Training Actions ----------------------
 
-	# Top priority
 	# Trains a profile using the given status and action
 	def trainProfile(self, action, detection, status):
 
@@ -122,13 +108,9 @@ class HeadsetAPIWrapper:
 		else:
 			self.stream = 'fac'
 
-		print(self.stream)
-
 		# Make sure valid status is used
 		if status not in self.status_list:
 			return False, "Status input must be 'start' or 'accept' or 'reject' or 'reset' or 'erase'"
-
-		# self.c.sub_request(['sys'])
 
 		print('{} training -----------------------------------'.format(status))
 
@@ -145,24 +127,21 @@ class HeadsetAPIWrapper:
 
 	# Get the trained actions along with how many times they were trained
 	def getTrainedActions(self, detection):
-		# return self.c.get_mental_command_brain_map(self.selectedProfile)
 		return self.c.get_trained_signature_action(detection, self.selectedProfile)
 
 # ---------------------- Inferencing Actions ----------------------
 
-	# Top priority
 	# Subscribe to action stream
 	def startInferencing(self):
 		self.c.sub_request(self.stream)
-		return True, ""
+		time.sleep(1)
+		return True, "Inference Started"
 
-	# Top priority
 	# Unsubscribe to action stream
 	def stopInferencing(self):
 		self.c.unsub_request(self.stream)
-		return False, ""
+		return False, "Inference Stopped"
 
-	# Top priority
 	# Returns headset action, power, and time
 	def receiveInference(self):
 		action, power, time = self.c.getCurrentInference()
@@ -170,52 +149,3 @@ class HeadsetAPIWrapper:
 			return True, "Action, time, power: ", action, power, int(time)
 		else:
 			return False, "Inference failed", "", 0, 0
-
-
-# Look at smart socket for debug print statements
-
-
-	# h.createProfile("HeadsetAPITest1")
-	# print(h.listProfiles())
-	#
-	# h.deleteProfile("HeadsetTest1")
-	# print(h.listProfiles())
-	#
-	# h.renameProfile("HeadsetAPITest1", "HeadsetTest1")
-	# print(h.listProfiles())
-	#
-	# h.selectProfile("HeadsetTest1")
-	# print(h.getSelectedProfile())
-	# h.deselectProfile()
-	# print(h.getSelectedProfile())
-
-	# h.createProfile("ToTrain")
-	# print(h.listProfiles())
-	#
-	# h.selectProfile("ToTrain")
-	# print(h.getSelectedProfile())
-	#
-	# h.getDetectionInfo('mentalCommand')
-	#
-	# h.trainProfile('neutral', 'mentalCommand', 'start')
-	# h.trainProfile('neutral', 'mentalCommand', 'accept')
-
-	h.selectProfile("Josiah")
-	print(h.getTrainedActions('mentalCommand'))
-
-	# h.startInferencing()
-	#
-	# try:
-	# 	while True:
-	# 		print(h.receiveInference())
-	# except KeyboardInterrupt:
-	# 	h.stopInferencing()
-	#
-	# print("out of loop")
-
-    h.selectProfile("ToTrain")
-    print(h.getSelectedProfile())
-
-    h.trainProfile('neutral', 'mentalCommand', 'start')
-    print("after train called")
-    h.receiveInference()
