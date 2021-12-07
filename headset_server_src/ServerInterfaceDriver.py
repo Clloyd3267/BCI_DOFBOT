@@ -281,22 +281,20 @@ class ServerInterfaceDriver:
 
 			self.sendMessage(responseMessage)
 
-		elif genericMessage.Is(StopInferencingRequest.DESCRIPTOR):  # StartInferencingRequest
+		elif genericMessage.Is(StartInferencingRequest.DESCRIPTOR):  # StartInferencingRequest
 			# Unpack specific message
-			requestMessage = StopInferencingRequest()
+			requestMessage = StartInferencingRequest()
 			self.unpackRequestMessage(requestMessage, genericMessage)
 
 			# Handle request command
-			# status, statusMessage = self.headsetAPIWrapper.startInferencing()
-			status = True
-			statusMessage = ""
+			status, statusMessage = self.headsetAPIWrapper.startInferencing()
+
 			# Package and send response message
 			responseMessage = StartInferencingResponse()
 			self.populateBaseResponse(responseMessage.baseResponse, requestMessage.baseRequest,
 									  self.getEnumStatus(status), statusMessage)
 
 			self.sendMessage(responseMessage)
-			self.headsetAPIWrapper.c.sub_request(self.headsetAPIWrapper.stream)
 
 		elif genericMessage.Is(StopInferencingRequest.DESCRIPTOR):  # StopInferencingRequest
 			# Unpack specific message
