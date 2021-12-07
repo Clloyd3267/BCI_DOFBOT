@@ -9,12 +9,12 @@
 import RPi.GPIO as GPIO
 
 # GPIO Pin assignments for BCI Dofbot # CDL=> Check these values later
-BTN_A_PIN = RST_BTN     = 11
-BTN_B_PIN = PRF_SEL_BTN = 13
-BTN_C_PIN = UP_BTN      = 15
-BTN_D_PIN = DN_BTN      = 16
-BTN_E_PIN = LF_BTN      = 18
-BTN_F_PIN = RT_BTN      = 22
+BTN_A_PIN = UP_BTN      = 11
+BTN_B_PIN = DN_BTN      = 13
+BTN_C_PIN = RT_BTN      = 15
+BTN_D_PIN = LF_BTN      = 16
+BTN_E_PIN = PRF_SEL_BTN = 18
+BTN_F_PIN = RST_BTN     = 22
 
 # Ignore warnings and user board pin numbering scheme
 GPIO.setmode(GPIO.BOARD)

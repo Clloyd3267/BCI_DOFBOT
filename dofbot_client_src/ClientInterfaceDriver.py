@@ -10,8 +10,6 @@ from google.protobuf.any_pb2  import *
 from SmartSockets.SmartSocket import *
 import itertools
 
-from headset_server_src.bci_dofbot_interface_pb2 import GetDetectionInfoRequest, GetDetectionInfoResponse, GetTrainedSignatureActionsRequest, GetTrainedSignatureActionsResponse
-
 class ClientInterfaceDriver:
 	def __init__(self, server_ip, server_port):
 
