@@ -145,7 +145,8 @@ class HeadsetAPIWrapper:
 	# Returns headset action, power, and time
 	def receiveInference(self):
 		action, power, time = self.c.getCurrentInference()
-		if (action and power and time):
+		if (action and time):
 			return True, "Action, time, power: ", action, power, int(time)
 		else:
+			print(action, power, time)
 			return False, "Inference failed", "", 0, 0
