@@ -13,7 +13,7 @@ class HeadsetAPIWrapper:
 		self.selectedProfile = ""
 
 	def listProfiles(self):
-		return self.profileList
+		return self.profileList.copy()
 
 	def createProfile(self, profileName):
 		if profileName not in self.profileList:

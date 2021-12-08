@@ -62,7 +62,7 @@ def arm_turn_right():
     increment = 10
     angle_1-= increment
     Arm.Arm_serial_servo_write(1, angle_1, 500)
-    return 0 
+    return 0
 
 def arm_next_forward_position():
     global angle_1, angle_2, angle_3, angle_4, angle_5, angle_6
@@ -131,6 +131,13 @@ def save_picture(image):
         filepath = "/home/dofbot/Pictures"
     filepath = filepath + "/" + time.strftime("%d-%b-%Y-%H-%M-%S") +".jpg"
     image.save(filepath)
+
+def default():
+    Arm.Arm_serial_servo_write6(90, 90, 90, 0, 90, 90, 500)
+    # while(get_current_forward_position()!=0):
+    #         arm_turn_left()
+    #         arm_next_back_position()
+    #         time.sleep(0.5)
 
 def grab_and_get():
     while(get_current_forward_position()!=4):

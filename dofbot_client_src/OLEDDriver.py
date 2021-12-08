@@ -11,7 +11,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
-MAX_LINE_WIDTH = 22
+MAX_LINE_WIDTH = 20
 
 class OLEDDriver:
 	def __init__(self):
@@ -28,8 +28,6 @@ class OLEDDriver:
 		self.image = Image.new('1', (self.width, self.height))
 		# Get drawing object to draw on image
 		self.draw = ImageDraw.Draw(self.image)
-		# Draw a black filled box to clear the image.
-		self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
 		# Draw some shapes.
 		# First define some constants to allow easy resizing of shapes.
 		paddling = -2
@@ -39,44 +37,48 @@ class OLEDDriver:
 		self.x = 0
 		# Load default font.
 		self.font = ImageFont.load_default()
+		self.clearDisplay()
 
-	def clearDisplay(self, lines):
+	def clearDisplay(self, lines="012"):
 		#clears display. if lines is "all", clears full. else, clears all but top line.
-		if(lines!="all"):
-			self.draw.rectangle((0, 0, self.width, self.height), outline=0, fill=0)
-		else:
-			self.draw.rectangle((0, self.height-25, self.width, self.height), outline=0, fill=0)
-		self.disp.image(self.image)
-		self.disp.display()
+		if '0' in lines:
+			self.printToLine(0)
+		if '1' in lines:
+			self.printToLine(1)
+		if '2' in lines:
+			self.printToLine(2)
 
-	def printToLine(self, line, text):
-		#writes to specified line, 4 lines of text with possible text overlapping with
-		#characters which go below baseline.
-		if(line==0):
-			self.draw.rectangle((0, 0, self.width, self.height-26), outline=0, fill=0)
-			self.draw.text((self.x, self.top), text, font=self.font, fill=255)
-		elif(line==1):
-			self.draw.rectangle((0, self.height-25, self.width, self.height-18), outline=0, fill=0)
-			self.draw.text((self.x, self.height-26), text, font=self.font, fill=255)
-		elif(line==2):
-			self.draw.rectangle((0, self.height-17, self.width, self.height-10), outline=0, fill=0)
-			self.draw.text((self.x, self.height-18), text, font=self.font, fill=255)
-		elif(line==3):
-			self.draw.rectangle((0, self.height-9, self.width, self.height), outline=0, fill=0)
-			self.draw.text((self.x, self.height-10), text, font=self.font, fill=255)
-		self.disp.image(self.image)
-		self.disp.display()
-
-	def printTo3Line(self, line, text):
+	def printToLine(self, line, text=""):
 		#writes to specified line, 3 lines of text with no overlapping.
-		if(line==0):
-			self.draw.rectangle((0, 0, self.width, self.height-24), outline=0, fill=255)
-			self.draw.text((self.x, self.top), text, font=self.font, fill=0)
-		elif(line==1):
-			self.draw.rectangle((0, self.height-22, self.width, self.height-14), outline=0, fill=0)
-			self.draw.text((self.x, self.height-23), text, font=self.font, fill=255)
-		elif(line==2):
-			self.draw.rectangle((0, self.height-12, self.width, self.height-4), outline=0, fill=0)
-			self.draw.text((self.x, self.height-13), text, font=self.font, fill=255)
+
+		# Crop to the right width
+		text = text[:20]
+
+		# Border
+		self.draw.rectangle((0,            0,             self.width-1, 0           ),  fill=255)  # Top
+		self.draw.rectangle((0,            self.height-1, self.width-1, self.height-1), fill=255)  # Bottom
+		self.draw.rectangle((0,            0,             0,            self.height-1), fill=255)  # Left
+		self.draw.rectangle((self.width-1, 0,             self.width-1, self.height-1), fill=255)  # Right
+
+		if line == 0:
+			self.draw.rectangle((1, 1, self.width-2, 11), fill=255)
+			self.draw.text((3, -1), text, font=self.font, fill=0)
+		if line == 1:
+			self.draw.rectangle((1, 11, self.width-2, 21), fill=0)
+			self.draw.text((3, 10), text, font=self.font, fill=255)
+		if line == 2:
+			self.draw.rectangle((1, 21, self.width-2, 30), fill=0)
+			self.draw.text((3, 20), text, font=self.font, fill=255)
+
 		self.disp.image(self.image)
 		self.disp.display()
+
+# oled = OLEDDriver()
+# message =  "abcdefghijklmnopqrstuv"
+# message1 = ""
+# oled.printToLine(0, message)
+# oled.printToLine(1, message)
+# oled.printToLine(2, message)
+# oled.clearDisplay()
+# oled.printTo3Line(2, message[:22])
+# oled.clearDisplay("1")
