@@ -9,7 +9,6 @@
 # from ClientInterfaceDriver import *
 from HeadsetAPIWrapperTest import *
 from UserIOInteraction import *
-# import IODriver
 import control
 import enum
 import time
@@ -94,7 +93,15 @@ class DofbotSubsystem:
 	def initializationMode(self):
 		"""The user logic for the initialization mode."""
 
+		# Move arm to default position
 		control.default()
+		time.sleep(0.5)
+		control.close_hand()
+		time.sleep(0.5)
+		control.open_hand()
+		if IODriver.isPressed(IODriver.RST_BTN): pass
+		if IODriver.isPressed(IODriver.PRF_SEL_BTN): pass
+
 		self.userIO.updateProfile("")
 		self.setCurrentMode(ModeType.PROFILE_SELECTION_MODE)
 
@@ -275,9 +282,15 @@ class DofbotSubsystem:
 		elif action == "lift":
 			self.userIO.printMessage("Live Action:".center(OLEDDriver.MAX_LINE_WIDTH) + action.center(OLEDDriver.MAX_LINE_WIDTH), waitKey=False)
 			control.grab_and_get()
+			time.sleep(0.5)
+			if IODriver.isPressed(IODriver.RST_BTN): pass
+			if IODriver.isPressed(IODriver.PRF_SEL_BTN): pass
 		elif action == "drop":
 			self.userIO.printMessage("Live Action:".center(OLEDDriver.MAX_LINE_WIDTH) + action.center(OLEDDriver.MAX_LINE_WIDTH), waitKey=False)
 			control.put_back()
+			time.sleep(0.5)
+			if IODriver.isPressed(IODriver.RST_BTN): pass
+			if IODriver.isPressed(IODriver.PRF_SEL_BTN): pass
 		elif action == "disappear":
 			self.userIO.printMessage("Live Action:".center(OLEDDriver.MAX_LINE_WIDTH) + action.center(OLEDDriver.MAX_LINE_WIDTH), waitKey=False)
 			control.take_picture()

@@ -134,12 +134,15 @@ def save_picture(image):
 
 def default():
     Arm.Arm_serial_servo_write6(90, 90, 90, 0, 90, 90, 500)
-    # while(get_current_forward_position()!=0):
-    #         arm_turn_left()
-    #         arm_next_back_position()
-    #         time.sleep(0.5)
 
 def grab_and_get():
+    global angle_1, angle_2, angle_3, angle_4, angle_5, angle_6
+    angle_6 = Arm.Arm_serial_servo_read(6)
+    angle_1 = Arm.Arm_serial_servo_read(1)
+    angle_2 = Arm.Arm_serial_servo_read(2)
+    angle_3 = Arm.Arm_serial_servo_read(3)
+    angle_4 = Arm.Arm_serial_servo_read(4)
+    angle_5 = Arm.Arm_serial_servo_read(5)
     while(get_current_forward_position()!=4):
         arm_turn_right()
         arm_next_forward_position()
@@ -150,7 +153,15 @@ def grab_and_get():
         arm_turn_left()
         arm_next_back_position()
         time.sleep(0.5)
+
 def put_back():
+    global angle_1, angle_2, angle_3, angle_4, angle_5, angle_6
+    angle_6 = Arm.Arm_serial_servo_read(6)
+    angle_1 = Arm.Arm_serial_servo_read(1)
+    angle_2 = Arm.Arm_serial_servo_read(2)
+    angle_3 = Arm.Arm_serial_servo_read(3)
+    angle_4 = Arm.Arm_serial_servo_read(4)
+    angle_5 = Arm.Arm_serial_servo_read(5)
     while(get_current_forward_position()!=4):
         arm_turn_right()
         arm_next_forward_position()

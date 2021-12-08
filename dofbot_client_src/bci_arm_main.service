@@ -1,0 +1,11 @@
+[Unit]
+Description=Startup script to move the arm to a default position and initialize the oled.
+After=multi-user.target
+
+[Service]
+Type=idle
+User=dofbot
+ExecStart=/bin/sh -c "python3 /home/dofbot/BCI_DOFBOT/dofbot_client_src/startup.py"
+
+[Install]
+WantedBy=multi-user.target
