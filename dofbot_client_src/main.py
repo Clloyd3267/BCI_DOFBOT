@@ -6,7 +6,7 @@
 # ------------------------------------------------------------------------------
 
 # Imports
-# from ClientInterfaceDriver import *
+from ClientInterfaceDriver import *
 from HeadsetAPIWrapperTest import *
 from UserIOInteraction import *
 import control
@@ -32,9 +32,11 @@ class DofbotSubsystem:
 		debug            (bool)                  : Whether debug prints should be enabled.
 		consoleMode      (bool)                  : Whether the program uses the console/keyboard
 		                                           or the buttonpad and oled.
+		testingMode      (bool)                  : Whether the system should use the
+		                                           client interface or a dummy api for the headset api.
 	"""
 
-	def __init__(self, server_ip, server_port, debug=True, consoleMode=False):
+	def __init__(self, server_ip, server_port, debug=True, consoleMode=False, testingMode=False):
 		"""
 		The default constructor for class DofbotSubsystem.
 
@@ -43,14 +45,19 @@ class DofbotSubsystem:
 			server_port (str)        : The Port of the server.
 			debug       (bool)       : Whether debug prints should be enabled.
 			consoleMode (bool)       : Whether the program uses the console/keyboard or the buttonpad and oled.
+			testingMode (bool)       : Whether the system should use the
+			                           client interface or a dummy api for the headset api.
 		"""
 
 		self.debug = debug
 		self.consoleMode = consoleMode
+		self.testingMode = testingMode
 
 		# Headset API interface
-		# self.headsetInterface = ClientInterfaceDriver(server_ip, server_port) # CDL=> Replace with client later
-		self.headsetInterface = HeadsetAPIWrapper()
+		if self.testingMode:
+			self.headsetInterface = HeadsetAPIWrapper()
+		else:
+			self.headsetInterface = ClientInterfaceDriver(server_ip, server_port)
 
 		# User interaction object
 		self.userIO = UserIOInteraction(consoleMode)
@@ -333,8 +340,15 @@ class DofbotSubsystem:
 
 if __name__ == "__main__":
 	# Connection information
-	server_ip = "128.153.183.36"
-	server_port = 42070
+	_server_ip = "128.153.183.36"
+	_server_port = 42070
 
-	dofbotSubsystem = DofbotSubsystem(server_ip, server_port)
+	_debug       = True   # Whether debug prints should be enabled
+	_consoleMode = False  # Whether the program uses the console/keyboard or the buttonpad and oled
+	_testingMode = True   # Whether the system should use the client interface or a dummy api for the headset api
+
+	dofbotSubsystem = DofbotSubsystem(server_ip=_server_ip,
+	                                  server_port=_server_port,
+	                                  debug=_debug, consoleMode=_consoleMode,
+	                                  testingMode=_testingMode)
 	dofbotSubsystem.main()
